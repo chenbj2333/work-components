@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Moment } from 'moment';
 import { Button, Row, Col } from 'antd';
 import './index.css';
 import InputItem from './InputItem';
@@ -6,7 +7,7 @@ import SelectItem from './SelectItem';
 import DatePickerItem from './DatePickerItem';
 
 export interface IQueryOptionsItem {
-  [name: string]: string | string[] | undefined; // 返给后端的查询条件
+  [name: string]: string | string[] | number[] | [Moment | null, Moment | null] | undefined; // 返给后端的查询条件
 }
 
 export interface ISearchItem {
@@ -25,6 +26,7 @@ export interface ISearchItem {
   getData?: Function; // 远程搜索请求方法(select)与 isRemote 联合使用
   showTime?: boolean; // 增加时间选择功能 (datePicker)
   format?: string | string[]; // 设置日期格式 (datePicker)
+  disabledDates?: number; // 只能选择的日期天数
 }
 
 export interface ICustomSearchProps {
@@ -137,6 +139,7 @@ const CustomSearch: React.FC<ICustomSearchProps> = ({
                 keyName={item.keyName}
                 showTime={item.showTime}
                 format={item.format}
+                disabledDates={item.disabledDates}
               />
             );
           } else {

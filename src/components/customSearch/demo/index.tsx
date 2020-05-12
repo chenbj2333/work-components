@@ -75,7 +75,8 @@ const CustomSearchDemo: React.FC = () => {
       componentName: 'datepicker',
       componentLabel: '日期选择2',
       keyName: 'datep2',
-      format: 'YYYY/MM/DD'
+      format: 'YYYY/MM/DD',
+      disabledDates: 7
     }
   ];
 

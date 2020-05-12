@@ -61,8 +61,8 @@ const SelectItem: React.FC<ISelectItemProps> = ({
   };
   return (
     <Select
-      defaultValue={queryOptions[keyName]}
-      value={queryOptions[keyName]}
+      defaultValue={queryOptions[keyName] as string | string[] | undefined}
+      value={queryOptions[keyName] as string | string[] | undefined}
       onChange={(value) => handleChange(value, keyName)}
       placeholder={placeholder}
       style={style}

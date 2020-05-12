@@ -32,7 +32,7 @@ const InputItem: React.FC<IInputItemProps> = ({
       onChange={(e) => handleChange(e, keyName)}
       placeholder={placeholder}
       size={size}
-      value={queryOptions[keyName]}
+      value={queryOptions[keyName] as string | undefined}
     />
   );
 };

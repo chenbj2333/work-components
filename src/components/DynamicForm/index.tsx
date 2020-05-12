@@ -3,7 +3,7 @@
  * @Author: ChenBingJie
  * @Date: 2020-05-11 11:15:07
  * @Last Modified by: ChenBingJie
- * @Last Modified time: 2020-05-11 17:48:17
+ * @Last Modified time: 2020-05-11 20:26:02
  */
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Form, Button, Input, Select } from 'antd';
@@ -62,11 +62,13 @@ const DynamicForm: React.FC<IDynamicFormProps> = ({
 
   // 初始化时，把已经存在的表单项值赋值给组件内部的表单项列表
   useEffect(() => {
-    setFormList([...originData]);
+    if (originData.length > 0) {
+      setFormList([...originData]);
+    }
   }, [originData]);
 
   useEffect(() => {
-    if (isAutoCheck) {
+    if (isAutoCheck && formList.length > 0) {
       formRef.current.validateFields();
     }
   }, [formList]);
@@ -80,7 +82,7 @@ const DynamicForm: React.FC<IDynamicFormProps> = ({
     setFormList([
       ...formList,
       {
-        id: new Date().getTime(),
+        id:  new Date().getTime(),
         ...formItemTemplate,
       },
     ]);
@@ -132,43 +134,44 @@ const DynamicForm: React.FC<IDynamicFormProps> = ({
       ),
       inputgroup: (
         <Input.Group compact>
-          {element.group.map((g: IFormItem) => {
-            if (g.componentName === 'input') {
-              return (
-                <Form.Item
-                  key={`${item.id}-${name}-${g.key}`}
-                  name={
-                    formListName
-                      ? [`${formListName}`, `${item.id}`, `${name}`, `${g.key}`]
-                      : [`${item.id}`, `${name}`, `${g.key}`]
-                  }
-                  initialValue={g.value}
-                  rules={g.rules}
-                  style={element.hasAddonAfter ? { width: '80%' } : { width: '100%' }}
-                >
-                  {input(g)}
-                </Form.Item>
-              );
-            }
-            if (g.componentName === 'select' && element.hasAddonAfter) {
-              return (
-                <Form.Item
-                  key={`${item.id}-${name}-${g.key}`}
-                  name={
-                    formListName
-                      ? [`${formListName}`, `${item.id}`, `${name}`, `${g.key}`]
-                      : [`${item.id}`, `${name}`, `${g.key}`]
-                  }
-                  initialValue={g.value}
-                  rules={g.rules}
-                  style={{ width: '20%' }}
-                >
-                  {select(g)}
-                </Form.Item>
-              );
-            }
-            return null;
-          })}
+          {element.group &&
+            element.group.map((g: IFormItem) => {
+              if (g.componentName === 'input') {
+                return (
+                  <Form.Item
+                    key={`${item.id}-${name}-${g.key}`}
+                    name={
+                      formListName
+                        ? [`${formListName}`, `${item.id}`, `${name}`, `${g.key}`]
+                        : [`${item.id}`, `${name}`, `${g.key}`]
+                    }
+                    initialValue={g.value}
+                    rules={g.rules}
+                    style={element.hasAddonAfter ? { width: '80%' } : { width: '100%' }}
+                  >
+                    {input(g)}
+                  </Form.Item>
+                );
+              }
+              if (g.componentName === 'select' && element.hasAddonAfter) {
+                return (
+                  <Form.Item
+                    key={`${item.id}-${name}-${g.key}`}
+                    name={
+                      formListName
+                        ? [`${formListName}`, `${item.id}`, `${name}`, `${g.key}`]
+                        : [`${item.id}`, `${name}`, `${g.key}`]
+                    }
+                    initialValue={g.value}
+                    rules={g.rules}
+                    style={{ width: '20%' }}
+                  >
+                    {select(g)}
+                  </Form.Item>
+                );
+              }
+              return null;
+            })}
         </Input.Group>
       ),
     };
