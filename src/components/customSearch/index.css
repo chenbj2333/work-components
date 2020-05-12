@@ -1,0 +1,11 @@
+.custom-search-wrapper {
+  padding: 24px;
+}
+
+.search-box {
+  width: 100%;
+}
+
+.custom-search-wrapper .handle-btn button {
+  margin: 0 6px;
+}
