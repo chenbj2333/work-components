@@ -1,10 +1,10 @@
 import React from 'react';
-import CustomSearchDemo from './components/customSearch/demo';
+import SelectDemo from './hooks/useSelections/demo';
 
 function App() {
   return (
     <div style={{padding: 24, margin: '0 auto'}}>
-      <CustomSearchDemo />
+      <SelectDemo />
     </div>
   );
 }
