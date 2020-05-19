@@ -1,10 +1,10 @@
 import React from 'react';
-import SelectDemo from './hooks/useSelections/demo';
+import EventEmitterDemo from './hooks/useEventEmitter/demo';
 
 function App() {
   return (
-    <div style={{padding: 24, margin: '0 auto'}}>
-      <SelectDemo />
+    <div style={{ padding: 24, margin: '0 auto' }}>
+      <EventEmitterDemo />
     </div>
   );
 }
