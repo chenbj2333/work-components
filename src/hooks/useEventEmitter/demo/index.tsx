@@ -31,7 +31,9 @@ const InputBox: FC<{
 
 const EventEmitterDemo: FC = () => {
   const focus$ = useEventEmitter<string>();
-
+  focus$.useSubscription((value) => {
+    console.log(value);
+  });
   return (
     <div>
       <MessageBox focus$={focus$} />
