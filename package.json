@@ -24,13 +24,23 @@
     "react-app-rewired": "^2.1.5",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
-    "typescript": "~3.7.2"
+    "typescript": "~3.7.2",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "express": "~4.16.0",
+    "http-errors": "~1.6.2",
+    "jade": "~1.11.0",
+    "jsonwebtoken": "^8.3.0",
+    "mock": "^0.1.1",
+    "nodemon": "^1.18.3",
+    "morgan": "~1.9.0"
   },
   "scripts": {
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
-    "eject": "react-app-rewired eject"
+    "eject": "react-app-rewired eject",
+    "server": "nodemon ./server/bin/www"
   },
   "eslintConfig": {
     "extends": "react-app"

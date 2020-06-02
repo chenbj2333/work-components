@@ -1,10 +1,10 @@
 import React from 'react';
-import EventEmitterDemo from './hooks/useEventEmitter/demo';
+import AxiosDemo from './axios/demo';
 
 function App() {
   return (
-    <div style={{ padding: 24, margin: '0 auto' }}>
-      <EventEmitterDemo />
+    <div>
+      <AxiosDemo />
     </div>
   );
 }
