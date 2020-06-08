@@ -1,7 +1,8 @@
 import React, { FC, useState } from 'react';
 import { Drawer, Button } from 'antd';
 import StepForm from '..';
-import FieldMessage from './fieldMessage';
+import baseJSON from './baseJSON';
+import fubenJSON from './fubenJSON';
 
 const StepFormDemo: FC = () => {
   const [visible, setVisible] = useState(false);
@@ -15,67 +16,42 @@ const StepFormDemo: FC = () => {
   const stepInfoList = [
     {
       key: 0,
-      name: '基础配置',
-      isNeed: true,
-      data: [
-        {
-          key: 'applicationName',
-          type: 'input',
-          label: '应用名',
-          placeholder: 'Please input your applicationName',
-          value: undefined,
-          tipMsg: FieldMessage.applicationName,
-          rules: [
-            { required: true, message: 'Please input your applicationName!' },
-          ],
-        },
-        {
-          key: 'image',
-          type: 'input',
-          label: '镜像名',
-          placeholder: 'Please input your image',
-          value: undefined,
-          tipMsg: FieldMessage.image,
-          rules: [{ required: true, message: 'Please input your image!' }],
-        },
-        {
-          key: 'imageTag',
-          type: 'input',
-          label: '镜像Tag',
-          placeholder: 'Please input your imageTag',
-          value: undefined,
-          tipMsg: FieldMessage.imageTag,
-          rules: [{ required: true, message: 'Please input your imageTag!' }],
-        },
-        {
-          key: 'cpuResource',
-          type: 'input',
-          label: 'CPU核数(毫核)',
-          placeholder: 'Please input your cpuResource',
-          value: undefined,
-          tipMsg: FieldMessage.cpuResource,
-          rules: [
-            { required: true, message: 'Please input your cpuResource!' },
-          ],
-        },
-        {
-          key: 'memoryResource',
-          type: 'input',
-          label: '内存容量(M)',
-          placeholder: 'Please input your memoryResource',
-          value: undefined,
-          tipMsg: FieldMessage.memoryResource,
-          rules: [
-            { required: true, message: 'Please input your memoryResource!' },
-          ],
-        },
-      ],
+      status: 'process',
+      name: '基础配置(必填)',
+      dataWrapperName: 'baseInfo',
+      data: baseJSON,
     },
-    // { key: 1, name: '副本设置', isNeed: true, data: [] },
-    // { key: 2, name: '调度设置', isNeed: false, data: {} },
-    // { key: 3, name: '健康检查设置', isNeed: false, data: {} },
-    // { key: 4, name: '存储及应用配置声明', isNeed: false, data: {} },
-    // { key: 5, name: '启动设置', isNeed: false, data: {} },
+    {
+      key: 1,
+      status: 'wait',
+      name: '副本设置(必填)',
+      dataWrapperName: 'fuben',
+      data: fubenJSON,
+    },
+    // {
+    //   key: 2,
+    //   name: '调度设置(选填)',
+    //   dataWrapperName: 'diaodu',
+    //   data: baseJSON,
+    // },
+    // {
+    //   key: 3,
+    //   name: '健康检查设置(选填)',
+    //   dataWrapperName: 'jiankang',
+    //   data: baseJSON,
+    // },
+    // {
+    //   key: 4,
+    //   name: '存储及应用配置声明(选填)',
+    //   dataWrapperName: 'storage',
+    //   data: baseJSON,
+    // },
+    // {
+    //   key: 5,
+    //   name: '启动设置(选填)',
+    //   dataWrapperName: 'start',
+    //   data: baseJSON,
+    // },
   ];
 
   return (
@@ -91,7 +67,7 @@ const StepFormDemo: FC = () => {
         onClose={onClose}
         visible={visible}
       >
-        <StepForm stepInfoList={stepInfoList} onCloseFun={onClose} />
+        <StepForm originStepInfoList={stepInfoList} onCloseFun={onClose} />
       </Drawer>
     </>
   );

@@ -11,20 +11,22 @@ const layout = {
 };
 
 export interface IStepFormProps {
-  stepInfoList: {
+  originStepInfoList: {
     key: number;
     name: string;
-    isNeed: boolean;
+    status: 'process' | 'wait' | 'error';
     description?: string;
+    dataWrapperName: string;
     data: IStepFormContentItem[];
   }[];
   onCloseFun: () => void;
 }
 
-const StepForm: FC<IStepFormProps> = ({ stepInfoList, onCloseFun }) => {
+const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
   const [form] = Form.useForm();
   const formRef = useRef(form);
-  const [current, setCurrent] = useState(stepInfoList[0]?.key);
+  const [current, setCurrent] = useState(originStepInfoList[0]?.key);
+  const [stepInfoList, setStepInfoList] = useState(originStepInfoList);
 
   // 上一步
   const prevClick = () => {
@@ -43,8 +45,43 @@ const StepForm: FC<IStepFormProps> = ({ stepInfoList, onCloseFun }) => {
     console.log('Success:', values);
   };
 
+  const onFinishFailed = (props: {
+    values: any;
+    errorFields: any;
+    outOfDate: boolean;
+  }) => {
+    const { errorFields } = props;
+    const errItem: string[] = [];
+    errorFields.forEach((err: any) => {
+      if (err.errors.length > 0) {
+        errItem.push(err.name[0]);
+      }
+    });
+    // @ts-ignore
+    const errNames = [...new Set(errItem)];
+    const newData: any[] = JSON.parse(JSON.stringify(stepInfoList));
+    errNames.forEach((name) => {
+      newData.forEach((info) => {
+        if (name === info.dataWrapperName) {
+          info.status = 'error';
+        }
+      });
+    });
+    setStepInfoList(newData);
+  };
+
   const handleChange = (current: number) => {
     console.log('onChange:', current);
+    const newData: any[] = JSON.parse(JSON.stringify(stepInfoList));
+    newData.forEach((item) => {
+      if (item.status !== 'error') {
+        item.status = 'wait';
+      }
+      if (item.key === current) {
+        item.status = 'process';
+      }
+    });
+    setStepInfoList(newData);
     setCurrent(current);
   };
 
@@ -56,9 +93,9 @@ const StepForm: FC<IStepFormProps> = ({ stepInfoList, onCloseFun }) => {
             {stepInfoList.map((stepInfo) => (
               <Step
                 key={stepInfo.key}
-                title={`${stepInfo.name}(${stepInfo.isNeed ? '必填' : '选填'})`}
+                title={stepInfo.name}
                 description={stepInfo.description}
-                status={current === stepInfo.key ? 'process' : 'wait'}
+                status={stepInfo.status}
                 style={{ minHeight: 80 }}
               />
             ))}
@@ -66,9 +103,26 @@ const StepForm: FC<IStepFormProps> = ({ stepInfoList, onCloseFun }) => {
         </section>
         <div className='stepform-divider' />
         <section className='stepform-right'>
-          <Form ref={formRef} onFinish={onFinish} {...layout}>
+          <Form
+            ref={formRef}
+            onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
+            {...layout}
+          >
             {stepInfoList.map((stepInfo) => (
-              <StepFormContent key={stepInfo.key} infoItem={stepInfo.data} />
+              <div
+                key={stepInfo.key}
+                style={
+                  current === stepInfo.key
+                    ? { display: 'block' }
+                    : { display: 'none' }
+                }
+              >
+                <StepFormContent
+                  dataWrapperName={stepInfo.dataWrapperName}
+                  infoItem={stepInfo.data}
+                />
+              </div>
             ))}
           </Form>
         </section>

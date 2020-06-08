@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Form, Input, Popover } from 'antd';
+import { Form, Input, Popover, Tooltip } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 
 export interface IStepFormContentItem {
@@ -15,47 +15,54 @@ export interface IStepFormContentItem {
 
 export interface IStepFormContentProps {
   infoItem: IStepFormContentItem[];
+  dataWrapperName: string; // 当前表单名称
 }
 
-const StepFormContent: FC<IStepFormContentProps> = ({ infoItem }) => {
+const StepFormContent: FC<IStepFormContentProps> = ({
+  infoItem,
+  dataWrapperName,
+}) => {
   const itemLabel = (label: string, tipMsg?: string) => {
     if (tipMsg) {
       return (
-        <div>
+        <span>
           <span style={{ marginRight: 4 }}>{label}</span>
           <Popover
             content={tipMsg}
-            getPopupContainer={(triggerNode) =>
-              triggerNode.parentNode?.parentNode?.parentNode as HTMLElement
-            }
+            getPopupContainer={(trigger) => {
+              console.log(
+                trigger.parentNode?.parentNode?.parentNode?.parentNode
+                  ?.parentNode
+              );
+              return trigger.parentNode?.parentNode?.parentNode?.parentNode
+                ?.parentNode as HTMLElement;
+            }}
           >
             <QuestionCircleOutlined />
           </Popover>
-        </div>
+        </span>
       );
     }
     return label;
   };
-  return (
-    <>
-      {infoItem.map((item) => {
-        if (item.type === 'input') {
-          return (
-            <Form.Item
-              key={item.key}
-              label={itemLabel(item.label, item.tipMsg)}
-              name={item.key}
-              rules={item.rules}
-              initialValue={item.value}
-            >
-              <Input placeholder={item.placeholder} />
-            </Form.Item>
-          );
-        }
-        return null;
-      })}
-    </>
-  );
+  const content = (item: IStepFormContentItem) => {
+    if (item.type === 'input') {
+      return (
+        <Form.Item
+          key={`${dataWrapperName}-${item.key}`}
+          name={[dataWrapperName, item.key]}
+          rules={item.rules}
+          initialValue={item.value}
+          label={itemLabel(item.label, item.tipMsg)}
+          style={{ overflow: 'auto' }}
+        >
+          <Input placeholder={item.placeholder} />
+        </Form.Item>
+      );
+    }
+    return null;
+  };
+  return <>{infoItem.map((item) => content(item))}</>;
 };
 
 export default StepFormContent;
