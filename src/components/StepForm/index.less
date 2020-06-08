@@ -1,0 +1,66 @@
+.stepform-wrapper {
+  height: calc(100vh - 56px);
+  display: flex;
+  flex-direction: column;
+
+  .stepform-content {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+
+    .stepform-left {
+      padding: 24px 0 24px 24px;
+      width: 36%;
+      min-width: 260px;
+      overflow-y: auto;
+    }
+
+    .stepform-divider {
+      padding: 24px 0;
+      position: relative;
+      width: 1px;
+      height: 100%;
+    }
+
+    .stepform-divider:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 24px;
+      width: 1px;
+      height: 100%;
+      background-image: linear-gradient(
+        to bottom,
+        rgba(144, 147, 153, 0.1),
+        rgba(144, 147, 153, 0.2),
+        rgba(144, 147, 153, 0.3),
+        rgba(144, 147, 153, 0.4),
+        rgba(144, 147, 153, 0.5),
+        rgba(144, 147, 153, 0.4),
+        rgba(144, 147, 153, 0.3),
+        rgba(144, 147, 153, 0.2),
+        rgba(144, 147, 153, 0.1)
+      );
+    }
+
+    .stepform-right {
+      padding: 24px 24px 24px 0;
+      width: 64%;
+      overflow-y: auto;
+    }
+  }
+
+  .stepform-footer {
+    height: 54px;
+    min-height: 54px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    border-top: 1px solid #f0f0f0;
+
+    .stepform-footer-btn {
+      margin-right: 12px;
+    }
+  }
+}
