@@ -1,8 +1,7 @@
-import React, { FC, useState, useRef, useEffect } from 'react';
+import React, { FC, useState, useRef } from 'react';
 import { Steps, Button, Form } from 'antd';
 import './index.less';
 import StepFormContent, { IStepFormContentItem } from './StepFormContent';
-import axios from '../../axios/index';
 
 const { Step } = Steps;
 
@@ -28,31 +27,18 @@ export interface IStepFormProps {
     data: IStepFormContentItem[];
   }[];
   onCloseFun: () => void;
-  queryParams?: any | null;
+  originData: any;
 }
 
 const StepForm: FC<IStepFormProps> = ({
   originStepInfoList,
   onCloseFun,
-  queryParams,
+  originData,
 }) => {
   const [form] = Form.useForm();
   const formRef = useRef(form);
-  const [originData, setOriginData] = useState(null);
   const [current, setCurrent] = useState(originStepInfoList[0]?.key);
   const [stepInfoList, setStepInfoList] = useState(originStepInfoList);
-
-  useEffect(() => {
-    if (queryParams) {
-      axios({
-        url: 'http://10.0.1.25:9999/api/application/backUpdateApplication',
-        method: 'get',
-        params: queryParams,
-      }).then((res) => {
-        setOriginData(res.data.data);
-      });
-    }
-  });
 
   // 提交
   const submitClick = () => {

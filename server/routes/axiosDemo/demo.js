@@ -89,4 +89,34 @@ router.get('/application/backUpdateApplication', function (req, res, next) {
   res.send(data);
 });
 
+router.get('/application/getWorkerList', function (req, res, next) {
+  const data = {
+    message: 'success',
+    data: [
+      {
+        uid: '67a3264b-cc6d-4234-9493-18d3442e534f',
+        workerName: 'workerset-lo4pw0',
+        showWorkerName: 'workerset-lo4pw0(异常)',
+      },
+      {
+        uid: '3368453f-6423-461d-918d-8df6335ff377',
+        workerName: 'workerset-6mxcfj',
+        showWorkerName: 'workerset-6mxcfj(异常)',
+      },
+      {
+        uid: 'b03a057b-32cf-4f0d-beda-ab9ddf55f4ad',
+        workerName: 'node-5-108',
+        showWorkerName: 'node-5-108(正常)',
+      },
+      {
+        uid: '7af06ac7-d41a-45f8-ba60-80771b7de43a',
+        workerName: 'node-5-107',
+        showWorkerName: 'node-5-107(正常)',
+      },
+    ],
+    code: 200,
+  };
+  res.send(data);
+});
+
 module.exports = router;
