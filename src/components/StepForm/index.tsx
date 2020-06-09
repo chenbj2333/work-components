@@ -1,7 +1,7 @@
-import React, { FC, useState, useRef, ReactNode } from 'react';
+import React, { FC, useState, useRef } from 'react';
 import { Steps, Button, Form } from 'antd';
 import './index.less';
-// import StepFormContent, { IStepFormContentItem } from './StepFormContent';
+import StepFormContent, { IStepFormContentItem } from './StepFormContent';
 
 const { Step } = Steps;
 
@@ -24,13 +24,17 @@ export interface IStepFormProps {
     status: stepStatusType;
     description?: string;
     dataWrapperName: string;
-    // data: IStepFormContentItem[];
-    component: ReactNode;
+    data: IStepFormContentItem[];
   }[];
   onCloseFun: () => void;
+  originData: any;
 }
 
-const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
+const StepForm: FC<IStepFormProps> = ({
+  originStepInfoList,
+  onCloseFun,
+  originData,
+}) => {
   const [form] = Form.useForm();
   const formRef = useRef(form);
   const [current, setCurrent] = useState(originStepInfoList[0]?.key);
@@ -49,24 +53,24 @@ const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
     errorFields: any;
     outOfDate: boolean;
   }) => {
-    // const { errorFields } = props;
-    // const errItem: string[] = [];
-    // errorFields.forEach((err: any) => {
-    //   if (err.errors.length > 0) {
-    //     errItem.push(err.name[0]);
-    //   }
-    // });
-    // // @ts-ignore
-    // const errNames = [...new Set(errItem)];
-    // const newData: any[] = JSON.parse(JSON.stringify(stepInfoList));
-    // errNames.forEach((name) => {
-    //   newData.forEach((info) => {
-    //     if (name === info.dataWrapperName) {
-    //       info.status = 'error';
-    //     }
-    //   });
-    // });
-    // setStepInfoList(newData);
+    const { errorFields } = props;
+    const errItem: string[] = [];
+    errorFields.forEach((err: any) => {
+      if (err.errors.length > 0) {
+        errItem.push(err.name[0]);
+      }
+    });
+    // @ts-ignore
+    const errNames = [...new Set(errItem)];
+    const newData: any[] = JSON.parse(JSON.stringify(stepInfoList));
+    errNames.forEach((name) => {
+      newData.forEach((info) => {
+        if (name === info.dataWrapperName) {
+          info.status = 'error';
+        }
+      });
+    });
+    setStepInfoList(newData);
   };
 
   const handleChange = (current: number) => {
@@ -117,11 +121,11 @@ const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
                     : { display: 'none' }
                 }
               >
-                {/* <StepFormContent
+                <StepFormContent
                   dataWrapperName={stepInfo.dataWrapperName}
                   infoItem={stepInfo.data}
-                /> */}
-                {stepInfo.component}
+                  originData={originData}
+                />
               </div>
             ))}
           </Form>

@@ -1,83 +1,35 @@
-import React, { FC, useState, useReducer } from 'react';
+import React, { FC, useState } from 'react';
 import { Drawer, Button } from 'antd';
 import StepForm, { stepStatusType } from '..';
 import baseJSON from './baseJSON';
 import fubenJSON from './fubenJSON';
-import CreateAppBase from './base';
+import axios from '../../../axios';
+import { diaoduJSON, diaoduFormItemTemplate } from './diaoduJSON';
 
 const StepFormDemo: FC = () => {
   const [visible, setVisible] = useState(false);
-  const originData = {
-    applicationName: undefined,
-    image: undefined,
-    imageTag: undefined,
-    cpuResource: undefined,
-    memoryResource: undefined,
-    containerName: undefined,
-    replicas: undefined,
-    historyLimit: undefined,
-    maxSurge: undefined,
-    maxUnavailable: undefined,
-    workerName: undefined,
-    bindIp: undefined,
-    workerSelector: null,
-    workerAffinity: {
-      key: undefined,
-      operator: undefined,
-    },
-    host: undefined,
-    path: undefined,
-    port: undefined,
-    failureThreshold: undefined,
-    periodSeconds: undefined,
-    timeoutSeconds: undefined,
-    volumes: {
-      type: undefined,
-      sourceName: undefined,
-      alias: undefined,
-    },
-    volumeMounts: {
-      alias: undefined,
-      mountPath: undefined,
-      subPath: undefined,
-    },
-    env: {
-      name: undefined,
-      value: undefined,
-    },
-    envFrom: undefined,
-    cmd: undefined,
-  };
-  // const contextValue = useReducer(reducer, originData);
-  // const CountContext = React.createContext(contextValue);
-  const showDrawer = () => {
-    setVisible(true);
-  };
-  const onClose = () => {
-    setVisible(false);
-  };
-
-  const stepInfoList = [
+  const [stepInfoList, setStepInfoList] = useState([
     {
       key: 0,
       status: 'process' as stepStatusType,
       name: '基础配置(必填)',
       dataWrapperName: 'baseInfo',
-      component: <CreateAppBase />,
+      data: baseJSON,
     },
-    // {
-    //   key: 1,
-    //   status: 'wait' as stepStatusType,
-    //   name: '副本设置(必填)',
-    //   dataWrapperName: 'fuben',
-    //   data: fubenJSON,
-    // },
-    // {
-    //   key: 2,
-    //   name: '调度设置(选填)',
-    //   dataWrapperName: 'diaodu',
-    //   data: baseJSON,
-    // },
+    {
+      key: 1,
+      status: 'wait' as stepStatusType,
+      name: '副本设置(必填)',
+      dataWrapperName: 'fuben',
+      data: fubenJSON,
+    },
+    {
+      key: 2,
+      status: 'wait' as stepStatusType,
+      name: '调度设置(选填)',
+      dataWrapperName: 'diaodu',
+      data: diaoduJSON,
+    },
     // {
     //   key: 3,
     //   name: '健康检查设置(选填)',
@@ -96,12 +48,60 @@ const StepFormDemo: FC = () => {
     //   dataWrapperName: 'start',
     //   data: baseJSON,
     // },
-  ];
+  ]);
+  const [originData, setOriginData] = useState(null);
+
+  const showDrawer = () => {
+    setVisible(true);
+    getWorkerList();
+    setOriginData(null);
+    // getApparafileList();
+  };
+  const showUpdateDrawer = () => {
+    setVisible(true);
+    getWorkerList();
+    // getApparafileList();
+    getOriginData({ applicationName: 'abc' });
+  };
+  const onClose = () => {
+    setVisible(false);
+  };
+
+  const getWorkerList = () => {
+    axios({
+      url: 'http://10.0.1.25:9999/api/application/getWorkerList',
+      method: 'get',
+    }).then((res) => {
+      // @ts-ignore
+      stepInfoList[2].data[0].options = res.data.data;
+      setStepInfoList([...stepInfoList]);
+    });
+  };
+  // const getApparafileList = () => {
+  //   axios({
+  //     url: 'http://10.0.1.25:9999/api/application/apparafileList',
+  //     method: 'get',
+  //   }).then((res) => {
+  //     setOriginData(res.data.data);
+  //   });
+  // };
+  const getOriginData = (params: any) => {
+    axios({
+      url: 'http://10.0.1.25:9999/api/application/backUpdateApplication',
+      method: 'get',
+      params: params,
+    }).then((res) => {
+      setOriginData(res.data.data);
+    });
+  };
 
   return (
     <>
       <Button type='primary' onClick={showDrawer}>
         Open
+      </Button>
+      <Button type='primary' onClick={showUpdateDrawer}>
+        更新
       </Button>
       <Drawer
         title='Basic Drawer'
@@ -111,9 +111,13 @@ const StepFormDemo: FC = () => {
         onClose={onClose}
         visible={visible}
       >
-        {/* <CountContext.Provider value={contextValue}> */}
-        <StepForm originStepInfoList={stepInfoList} onCloseFun={onClose} />
-        {/* </CountContext.Provider> */}
+        {visible && (
+          <StepForm
+            originStepInfoList={stepInfoList}
+            onCloseFun={onClose}
+            originData={originData}
+          />
+        )}
       </Drawer>
     </>
   );
