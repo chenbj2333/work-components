@@ -4,17 +4,21 @@ import { QuestionCircleOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
 
-export type StepFormContentType = 'input' | 'inputnumber' | 'select';
+export type StepFormContentType =
+  | 'input'
+  | 'inputnumber'
+  | 'select'
+  | 'dynamicform';
 
 export interface IStepFormContentItem {
   key: string;
   type: string;
   label: string;
-  placeholder: string;
-  value: string | undefined;
+  placeholder?: string;
+  value?: string | undefined;
   tipMsg: string;
   options?: any;
-  rules: any;
+  rules?: any;
 }
 
 export interface IStepFormContentProps {

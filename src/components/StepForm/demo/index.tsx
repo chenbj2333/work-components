@@ -4,7 +4,7 @@ import StepForm, { stepStatusType } from '..';
 import baseJSON from './baseJSON';
 import fubenJSON from './fubenJSON';
 import axios from '../../../axios';
-import diaoduJSON from './diaoduJSON';
+import { diaoduJSON, diaoduFormItemTemplate } from './diaoduJSON';
 
 const StepFormDemo: FC = () => {
   const [visible, setVisible] = useState(false);
