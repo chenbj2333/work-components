@@ -1,7 +1,7 @@
-import React, { FC, useState, useRef } from 'react';
+import React, { FC, useState, useRef, ReactNode } from 'react';
 import { Steps, Button, Form } from 'antd';
 import './index.less';
-import StepFormContent, { IStepFormContentItem } from './StepFormContent';
+// import StepFormContent, { IStepFormContentItem } from './StepFormContent';
 
 const { Step } = Steps;
 
@@ -24,7 +24,8 @@ export interface IStepFormProps {
     status: stepStatusType;
     description?: string;
     dataWrapperName: string;
-    data: IStepFormContentItem[];
+    // data: IStepFormContentItem[];
+    component: ReactNode;
   }[];
   onCloseFun: () => void;
 }
@@ -34,15 +35,6 @@ const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
   const formRef = useRef(form);
   const [current, setCurrent] = useState(originStepInfoList[0]?.key);
   const [stepInfoList, setStepInfoList] = useState(originStepInfoList);
-
-  // 上一步
-  const prevClick = () => {
-    handleChange(current - 1);
-  };
-  // 下一步
-  const nextClick = () => {
-    handleChange(current + 1);
-  };
 
   // 提交
   const submitClick = () => {
@@ -57,24 +49,24 @@ const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
     errorFields: any;
     outOfDate: boolean;
   }) => {
-    const { errorFields } = props;
-    const errItem: string[] = [];
-    errorFields.forEach((err: any) => {
-      if (err.errors.length > 0) {
-        errItem.push(err.name[0]);
-      }
-    });
-    // @ts-ignore
-    const errNames = [...new Set(errItem)];
-    const newData: any[] = JSON.parse(JSON.stringify(stepInfoList));
-    errNames.forEach((name) => {
-      newData.forEach((info) => {
-        if (name === info.dataWrapperName) {
-          info.status = 'error';
-        }
-      });
-    });
-    setStepInfoList(newData);
+    // const { errorFields } = props;
+    // const errItem: string[] = [];
+    // errorFields.forEach((err: any) => {
+    //   if (err.errors.length > 0) {
+    //     errItem.push(err.name[0]);
+    //   }
+    // });
+    // // @ts-ignore
+    // const errNames = [...new Set(errItem)];
+    // const newData: any[] = JSON.parse(JSON.stringify(stepInfoList));
+    // errNames.forEach((name) => {
+    //   newData.forEach((info) => {
+    //     if (name === info.dataWrapperName) {
+    //       info.status = 'error';
+    //     }
+    //   });
+    // });
+    // setStepInfoList(newData);
   };
 
   const handleChange = (current: number) => {
@@ -125,10 +117,11 @@ const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
                     : { display: 'none' }
                 }
               >
-                <StepFormContent
+                {/* <StepFormContent
                   dataWrapperName={stepInfo.dataWrapperName}
                   infoItem={stepInfo.data}
-                />
+                /> */}
+                {stepInfo.component}
               </div>
             ))}
           </Form>
@@ -138,20 +131,6 @@ const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
         <Button className='stepform-footer-btn' onClick={onCloseFun}>
           取消
         </Button>
-        {current !== 0 && (
-          <Button className='stepform-footer-btn' onClick={prevClick}>
-            上一步
-          </Button>
-        )}
-        {current !== stepInfoList.length - 1 && (
-          <Button
-            type='primary'
-            className='stepform-footer-btn'
-            onClick={nextClick}
-          >
-            下一步
-          </Button>
-        )}
         <Button
           type='primary'
           className='stepform-footer-btn'
