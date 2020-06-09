@@ -70,6 +70,7 @@ const StepFormContent: FC<IStepFormContentProps> = ({
     return null;
   };
   const updateContent = (item: IStepFormContentItem) => {
+    console.log('i am update');
     return (
       <Form.Item
         validateFirst
@@ -84,6 +85,7 @@ const StepFormContent: FC<IStepFormContentProps> = ({
     );
   };
   const createContent = (item: IStepFormContentItem) => {
+    console.log('i am create');
     return (
       <Form.Item
         validateFirst

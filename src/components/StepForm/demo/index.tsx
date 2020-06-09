@@ -1,4 +1,4 @@
-import React, { FC, useState, useRef } from 'react';
+import React, { FC, useState } from 'react';
 import { Drawer, Button } from 'antd';
 import StepForm, { stepStatusType } from '..';
 import baseJSON from './baseJSON';
