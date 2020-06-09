@@ -49,4 +49,74 @@ router.delete('/demo/deleteObj', function (req, res, next) {
   res.send(data);
 });
 
+router.get('/application/backUpdateApplication', function (req, res, next) {
+  const data = {
+    message: 'success',
+    data: {
+      uid: '',
+      applicationName: 'c-test',
+      image: 'test-image:test-image-tag',
+      imageTag: 'latest',
+      cpuResource: 21,
+      memoryResource: 130,
+      containerName: 'c-test-container',
+      replicas: 1,
+      historyLimit: 1,
+      maxSurge: 1,
+      maxUnavailable: 0,
+      workerName: 'node-5-108',
+      bindIp: '1.1.1.1',
+      workerSelector: { 'key-name': 'key-value' },
+      workerAffinity: [
+        { key: 'jiedianqinhexing', operator: 'NotIn', values: ['a', 'b', 'c'] },
+      ],
+      host: '8.8.8.8',
+      path: '/a/b/c',
+      port: 3000,
+      failureThreshold: 5,
+      periodSeconds: 60,
+      timeoutSeconds: 10,
+      volumes: [
+        { alias: 'aaa', type: 'apparafile', sourceName: 'Apparafile-s1cc57' },
+      ],
+      volumeMounts: [{ alias: 'aaa', mountPath: '/aaa', subPath: 'a/a' }],
+      env: [{ name: 'bianliangming', value: 'bianliangzhi' }],
+      envFrom: 'c-test-txtaaaaxjyaaa',
+      cmd: 'sdfsdgsdgfdh',
+    },
+    code: 200,
+  };
+  res.send(data);
+});
+
+router.get('/application/getWorkerList', function (req, res, next) {
+  const data = {
+    message: 'success',
+    data: [
+      {
+        uid: '67a3264b-cc6d-4234-9493-18d3442e534f',
+        workerName: 'workerset-lo4pw0',
+        showWorkerName: 'workerset-lo4pw0(异常)',
+      },
+      {
+        uid: '3368453f-6423-461d-918d-8df6335ff377',
+        workerName: 'workerset-6mxcfj',
+        showWorkerName: 'workerset-6mxcfj(异常)',
+      },
+      {
+        uid: 'b03a057b-32cf-4f0d-beda-ab9ddf55f4ad',
+        workerName: 'node-5-108',
+        showWorkerName: 'node-5-108(正常)',
+      },
+      {
+        uid: '7af06ac7-d41a-45f8-ba60-80771b7de43a',
+        workerName: 'node-5-107',
+        showWorkerName: 'node-5-107(正常)',
+      },
+    ],
+    code: 200,
+  };
+  res.send(data);
+});
+
 module.exports = router;
