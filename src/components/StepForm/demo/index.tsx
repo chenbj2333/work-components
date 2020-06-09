@@ -1,40 +1,46 @@
 import React, { FC, useState } from 'react';
 import { Drawer, Button } from 'antd';
 import StepForm, { stepStatusType } from '..';
-import baseJSON from './baseJSON';
-import fubenJSON from './fubenJSON';
 import axios from '../../../axios';
-import { diaoduJSON, diaoduFormItemTemplate } from './diaoduJSON';
+import DispatchSetting from './DispatchSetting';
 
 const StepFormDemo: FC = () => {
   const [visible, setVisible] = useState(false);
-  const [stepInfoList, setStepInfoList] = useState([
+  const [originData, setOriginData] = useState(null);
+  const stepInfoList = [
+    // {
+    //   key: 0,
+    //   status: 'process' as stepStatusType,
+    //   name: '基础配置(必填)',
+    //   dataWrapperName: 'baseInfo',
+    //   data: baseJSON,
+    // },
+    // {
+    //   key: 1,
+    //   status: 'wait' as stepStatusType,
+    //   name: '副本设置(必填)',
+    //   dataWrapperName: 'fuben',
+    //   data: fubenJSON,
+    // },
     {
       key: 0,
       status: 'process' as stepStatusType,
-      name: '基础配置(必填)',
-      dataWrapperName: 'baseInfo',
-      data: baseJSON,
-    },
-    {
-      key: 1,
-      status: 'wait' as stepStatusType,
-      name: '副本设置(必填)',
-      dataWrapperName: 'fuben',
-      data: fubenJSON,
-    },
-    {
-      key: 2,
-      status: 'wait' as stepStatusType,
       name: '调度设置(选填)',
-      dataWrapperName: 'diaodu',
-      data: diaoduJSON,
+      dataWrapperName: 'dispatch',
+      component: (formRef: any) => (
+        <DispatchSetting
+          formRef={formRef}
+          dataWrapperName='dispatch'
+          originData={originData}
+        />
+      ),
     },
     // {
-    //   key: 3,
+    //   key: 0,
+    //   status: 'process' as stepStatusType,
     //   name: '健康检查设置(选填)',
     //   dataWrapperName: 'jiankang',
-    //   data: baseJSON,
+    //   component: (formRef: any) => <DispatchSetting formRef={formRef} />,
     // },
     // {
     //   key: 4,
@@ -48,18 +54,15 @@ const StepFormDemo: FC = () => {
     //   dataWrapperName: 'start',
     //   data: baseJSON,
     // },
-  ]);
-  const [originData, setOriginData] = useState(null);
+  ];
 
   const showDrawer = () => {
     setVisible(true);
-    getWorkerList();
     setOriginData(null);
     // getApparafileList();
   };
   const showUpdateDrawer = () => {
     setVisible(true);
-    getWorkerList();
     // getApparafileList();
     getOriginData({ applicationName: 'abc' });
   };
@@ -67,16 +70,6 @@ const StepFormDemo: FC = () => {
     setVisible(false);
   };
 
-  const getWorkerList = () => {
-    axios({
-      url: 'http://10.0.1.25:9999/api/application/getWorkerList',
-      method: 'get',
-    }).then((res) => {
-      // @ts-ignore
-      stepInfoList[2].data[0].options = res.data.data;
-      setStepInfoList([...stepInfoList]);
-    });
-  };
   // const getApparafileList = () => {
   //   axios({
   //     url: 'http://10.0.1.25:9999/api/application/apparafileList',
@@ -92,6 +85,7 @@ const StepFormDemo: FC = () => {
       params: params,
     }).then((res) => {
       setOriginData(res.data.data);
+      console.log('123');
     });
   };
 
@@ -112,11 +106,7 @@ const StepFormDemo: FC = () => {
         visible={visible}
       >
         {visible && (
-          <StepForm
-            originStepInfoList={stepInfoList}
-            onCloseFun={onClose}
-            originData={originData}
-          />
+          <StepForm originStepInfoList={stepInfoList} onCloseFun={onClose} />
         )}
       </Drawer>
     </>

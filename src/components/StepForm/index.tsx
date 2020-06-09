@@ -1,7 +1,6 @@
-import React, { FC, useState, useRef } from 'react';
+import React, { FC, useState, useRef, ReactNode } from 'react';
 import { Steps, Button, Form } from 'antd';
 import './index.less';
-import StepFormContent, { IStepFormContentItem } from './StepFormContent';
 
 const { Step } = Steps;
 
@@ -23,18 +22,14 @@ export interface IStepFormProps {
     name: string;
     status: stepStatusType;
     description?: string;
-    dataWrapperName: string;
-    data: IStepFormContentItem[];
+    dataWrapperName?: string;
+    component: (formRef: any) => ReactNode;
+    // data: IStepFormContentItem[];
   }[];
   onCloseFun: () => void;
-  originData: any;
 }
 
-const StepForm: FC<IStepFormProps> = ({
-  originStepInfoList,
-  onCloseFun,
-  originData,
-}) => {
+const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
   const [form] = Form.useForm();
   const formRef = useRef(form);
   const [current, setCurrent] = useState(originStepInfoList[0]?.key);
@@ -62,21 +57,19 @@ const StepForm: FC<IStepFormProps> = ({
     });
     // @ts-ignore
     const errNames = [...new Set(errItem)];
-    const newData: any[] = JSON.parse(JSON.stringify(stepInfoList));
     errNames.forEach((name) => {
-      newData.forEach((info) => {
+      stepInfoList.forEach((info) => {
         if (name === info.dataWrapperName) {
           info.status = 'error';
         }
       });
     });
-    setStepInfoList(newData);
+    setStepInfoList([...stepInfoList]);
   };
 
   const handleChange = (current: number) => {
     console.log('onChange:', current);
-    const newData: any[] = JSON.parse(JSON.stringify(stepInfoList));
-    newData.forEach((item) => {
+    stepInfoList.forEach((item) => {
       if (item.status !== 'error') {
         item.status = 'wait';
       }
@@ -84,7 +77,7 @@ const StepForm: FC<IStepFormProps> = ({
         item.status = 'process';
       }
     });
-    setStepInfoList(newData);
+    setStepInfoList([...stepInfoList]);
     setCurrent(current);
   };
 
@@ -121,11 +114,7 @@ const StepForm: FC<IStepFormProps> = ({
                     : { display: 'none' }
                 }
               >
-                <StepFormContent
-                  dataWrapperName={stepInfo.dataWrapperName}
-                  infoItem={stepInfo.data}
-                  originData={originData}
-                />
+                {stepInfo.component(formRef)}
               </div>
             ))}
           </Form>
