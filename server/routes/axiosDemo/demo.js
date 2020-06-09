@@ -49,4 +49,44 @@ router.delete('/demo/deleteObj', function (req, res, next) {
   res.send(data);
 });
 
+router.get('/application/backUpdateApplication', function (req, res, next) {
+  const data = {
+    message: 'success',
+    data: {
+      uid: '',
+      applicationName: 'c-test',
+      image: 'test-image:test-image-tag',
+      imageTag: 'latest',
+      cpuResource: 21,
+      memoryResource: 130,
+      containerName: 'c-test-container',
+      replicas: 1,
+      historyLimit: 1,
+      maxSurge: 1,
+      maxUnavailable: 0,
+      workerName: 'node-5-108',
+      bindIp: '1.1.1.1',
+      workerSelector: { 'key-name': 'key-value' },
+      workerAffinity: [
+        { key: 'jiedianqinhexing', operator: 'NotIn', values: ['a', 'b', 'c'] },
+      ],
+      host: '8.8.8.8',
+      path: '/a/b/c',
+      port: 3000,
+      failureThreshold: 5,
+      periodSeconds: 60,
+      timeoutSeconds: 10,
+      volumes: [
+        { alias: 'aaa', type: 'apparafile', sourceName: 'Apparafile-s1cc57' },
+      ],
+      volumeMounts: [{ alias: 'aaa', mountPath: '/aaa', subPath: 'a/a' }],
+      env: [{ name: 'bianliangming', value: 'bianliangzhi' }],
+      envFrom: 'c-test-txtaaaaxjyaaa',
+      cmd: 'sdfsdgsdgfdh',
+    },
+    code: 200,
+  };
+  res.send(data);
+});
+
 module.exports = router;

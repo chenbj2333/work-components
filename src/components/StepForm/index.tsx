@@ -1,7 +1,8 @@
-import React, { FC, useState, useRef } from 'react';
+import React, { FC, useState, useRef, useEffect } from 'react';
 import { Steps, Button, Form } from 'antd';
 import './index.less';
 import StepFormContent, { IStepFormContentItem } from './StepFormContent';
+import axios from '../../axios/index';
 
 const { Step } = Steps;
 
@@ -27,22 +28,31 @@ export interface IStepFormProps {
     data: IStepFormContentItem[];
   }[];
   onCloseFun: () => void;
+  queryParams?: any | null;
 }
 
-const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
+const StepForm: FC<IStepFormProps> = ({
+  originStepInfoList,
+  onCloseFun,
+  queryParams,
+}) => {
   const [form] = Form.useForm();
   const formRef = useRef(form);
+  const [originData, setOriginData] = useState(null);
   const [current, setCurrent] = useState(originStepInfoList[0]?.key);
   const [stepInfoList, setStepInfoList] = useState(originStepInfoList);
 
-  // 上一步
-  const prevClick = () => {
-    handleChange(current - 1);
-  };
-  // 下一步
-  const nextClick = () => {
-    handleChange(current + 1);
-  };
+  useEffect(() => {
+    if (queryParams) {
+      axios({
+        url: 'http://10.0.1.25:9999/api/application/backUpdateApplication',
+        method: 'get',
+        params: queryParams,
+      }).then((res) => {
+        setOriginData(res.data.data);
+      });
+    }
+  });
 
   // 提交
   const submitClick = () => {
@@ -128,6 +138,7 @@ const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
                 <StepFormContent
                   dataWrapperName={stepInfo.dataWrapperName}
                   infoItem={stepInfo.data}
+                  originData={originData}
                 />
               </div>
             ))}
@@ -138,20 +149,6 @@ const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
         <Button className='stepform-footer-btn' onClick={onCloseFun}>
           取消
         </Button>
-        {current !== 0 && (
-          <Button className='stepform-footer-btn' onClick={prevClick}>
-            上一步
-          </Button>
-        )}
-        {current !== stepInfoList.length - 1 && (
-          <Button
-            type='primary'
-            className='stepform-footer-btn'
-            onClick={nextClick}
-          >
-            下一步
-          </Button>
-        )}
         <Button
           type='primary'
           className='stepform-footer-btn'

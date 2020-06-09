@@ -18,12 +18,15 @@ export interface IStepFormContentItem {
 export interface IStepFormContentProps {
   infoItem: IStepFormContentItem[];
   dataWrapperName: string; // 当前表单名称
+  originData: any; // 后端获取的数据
 }
 
 const StepFormContent: FC<IStepFormContentProps> = ({
   infoItem,
   dataWrapperName,
+  originData,
 }) => {
+  console.log(originData);
   const itemLabel = (label: string, tipMsg?: string) => {
     if (tipMsg) {
       return (
@@ -50,7 +53,7 @@ const StepFormContent: FC<IStepFormContentProps> = ({
           key={`${dataWrapperName}-${item.key}`}
           name={[dataWrapperName, item.key]}
           rules={item.rules}
-          initialValue={item.value}
+          // initialValue={originData[item.key]}
           label={itemLabel(item.label, item.tipMsg)}
           style={{ overflow: 'auto' }}
         >

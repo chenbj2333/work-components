@@ -6,8 +6,15 @@ import fubenJSON from './fubenJSON';
 
 const StepFormDemo: FC = () => {
   const [visible, setVisible] = useState(false);
+  const [applicationName, setApplicationName] = useState<object | null>(null);
+
   const showDrawer = () => {
     setVisible(true);
+    setApplicationName(null);
+  };
+  const showUpdateDrawer = () => {
+    setVisible(true);
+    setApplicationName({ applicationName: 'abc' });
   };
   const onClose = () => {
     setVisible(false);
@@ -59,6 +66,9 @@ const StepFormDemo: FC = () => {
       <Button type='primary' onClick={showDrawer}>
         Open
       </Button>
+      <Button type='primary' onClick={showUpdateDrawer}>
+        更新
+      </Button>
       <Drawer
         title='Basic Drawer'
         placement='right'
@@ -67,7 +77,13 @@ const StepFormDemo: FC = () => {
         onClose={onClose}
         visible={visible}
       >
-        <StepForm originStepInfoList={stepInfoList} onCloseFun={onClose} />
+        {visible && (
+          <StepForm
+            originStepInfoList={stepInfoList}
+            onCloseFun={onClose}
+            queryParams={applicationName}
+          />
+        )}
       </Drawer>
     </>
   );
