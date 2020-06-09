@@ -1,8 +1,10 @@
 import FieldMessage from './fieldMessage';
+import { StepFormContentType } from '../StepFormContent';
+
 export default [
   {
     key: 'applicationName',
-    type: 'input',
+    type: 'input' as StepFormContentType,
     label: '应用名',
     placeholder: 'Please input your applicationName',
     value: undefined,
@@ -11,7 +13,7 @@ export default [
   },
   {
     key: 'image',
-    type: 'input',
+    type: 'input' as StepFormContentType,
     label: '镜像名',
     placeholder: 'Please input your image',
     value: undefined,
@@ -20,7 +22,7 @@ export default [
   },
   {
     key: 'imageTag',
-    type: 'input',
+    type: 'input' as StepFormContentType,
     label: '镜像Tag',
     placeholder: 'Please input your imageTag',
     value: undefined,
@@ -29,7 +31,7 @@ export default [
   },
   {
     key: 'cpuResource',
-    type: 'input',
+    type: 'inputnumber' as StepFormContentType,
     label: 'CPU核数(毫核)',
     placeholder: 'Please input your cpuResource',
     value: undefined,
@@ -38,7 +40,7 @@ export default [
   },
   {
     key: 'memoryResource',
-    type: 'input',
+    type: 'inputnumber' as StepFormContentType,
     label: '内存容量(M)',
     placeholder: 'Please input your memoryResource',
     value: undefined,

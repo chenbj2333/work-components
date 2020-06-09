@@ -10,11 +10,18 @@ const layout = {
   wrapperCol: { span: 16 },
 };
 
+export type stepStatusType =
+  | 'error'
+  | 'wait'
+  | 'process'
+  | 'finish'
+  | undefined;
+
 export interface IStepFormProps {
   originStepInfoList: {
     key: number;
     name: string;
-    status: 'process' | 'wait' | 'error';
+    status: stepStatusType;
     description?: string;
     dataWrapperName: string;
     data: IStepFormContentItem[];

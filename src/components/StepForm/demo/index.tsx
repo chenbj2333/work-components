@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react';
 import { Drawer, Button } from 'antd';
-import StepForm from '..';
+import StepForm, { stepStatusType } from '..';
 import baseJSON from './baseJSON';
 import fubenJSON from './fubenJSON';
 
@@ -16,14 +16,14 @@ const StepFormDemo: FC = () => {
   const stepInfoList = [
     {
       key: 0,
-      status: 'process',
+      status: 'process' as stepStatusType,
       name: '基础配置(必填)',
       dataWrapperName: 'baseInfo',
       data: baseJSON,
     },
     {
       key: 1,
-      status: 'wait',
+      status: 'wait' as stepStatusType,
       name: '副本设置(必填)',
       dataWrapperName: 'fuben',
       data: fubenJSON,
