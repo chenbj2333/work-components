@@ -27,20 +27,22 @@ const StepFormDemo: FC = () => {
       status: 'process' as stepStatusType,
       name: '调度设置(选填)',
       dataWrapperName: 'dispatch',
-      component: (formRef: any) => (
-        <DispatchSetting
-          formRef={formRef}
-          dataWrapperName='dispatch'
-          originData={originData}
-        />
+      component: (
+        <DispatchSetting dataWrapperName='dispatch' originData={originData} />
       ),
     },
     // {
-    //   key: 0,
-    //   status: 'process' as stepStatusType,
+    //   key: 1,
+    //   status: 'wait' as stepStatusType,
     //   name: '健康检查设置(选填)',
     //   dataWrapperName: 'jiankang',
-    //   component: (formRef: any) => <DispatchSetting formRef={formRef} />,
+    //   component: (formRef: any) => (
+    //     <DispatchSetting
+    //       formRef={formRef}
+    //       dataWrapperName='jiankang'
+    //       originData={originData}
+    //     />
+    //   ),
     // },
     // {
     //   key: 4,
@@ -62,7 +64,6 @@ const StepFormDemo: FC = () => {
     // getApparafileList();
   };
   const showUpdateDrawer = () => {
-    setVisible(true);
     // getApparafileList();
     getOriginData({ applicationName: 'abc' });
   };
@@ -85,7 +86,7 @@ const StepFormDemo: FC = () => {
       params: params,
     }).then((res) => {
       setOriginData(res.data.data);
-      console.log('123');
+      setVisible(true);
     });
   };
 
@@ -100,7 +101,7 @@ const StepFormDemo: FC = () => {
       <Drawer
         title='Basic Drawer'
         placement='right'
-        width={760}
+        width={800}
         bodyStyle={{ padding: 0 }}
         onClose={onClose}
         visible={visible}

@@ -1,12 +1,12 @@
-import React, { FC, useState, useRef, ReactNode } from 'react';
+import React, { FC, useState, useRef, ReactNode, createContext } from 'react';
 import { Steps, Button, Form } from 'antd';
 import './index.less';
 
 const { Step } = Steps;
 
 const layout = {
-  labelCol: { span: 8 },
-  wrapperCol: { span: 16 },
+  labelCol: { span: 7 },
+  wrapperCol: { span: 17 },
 };
 
 export type stepStatusType =
@@ -23,11 +23,13 @@ export interface IStepFormProps {
     status: stepStatusType;
     description?: string;
     dataWrapperName?: string;
-    component: (formRef: any) => ReactNode;
+    component: ReactNode;
     // data: IStepFormContentItem[];
   }[];
   onCloseFun: () => void;
 }
+
+export let FormRefContext: any = createContext(null);
 
 const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
   const [form] = Form.useForm();
@@ -35,8 +37,22 @@ const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
   const [current, setCurrent] = useState(originStepInfoList[0]?.key);
   const [stepInfoList, setStepInfoList] = useState(originStepInfoList);
 
+  // 设置状态
+  const setStatus = () => {
+    stepInfoList.forEach((item) => {
+      if (item.status !== 'error') {
+        item.status = 'wait';
+      }
+      if (item.key === current) {
+        item.status = 'process';
+      }
+    });
+    setStepInfoList([...stepInfoList]);
+  };
+
   // 提交
   const submitClick = () => {
+    setStatus();
     formRef.current.submit();
   };
   const onFinish = (values: any) => {
@@ -69,15 +85,7 @@ const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
 
   const handleChange = (current: number) => {
     console.log('onChange:', current);
-    stepInfoList.forEach((item) => {
-      if (item.status !== 'error') {
-        item.status = 'wait';
-      }
-      if (item.key === current) {
-        item.status = 'process';
-      }
-    });
-    setStepInfoList([...stepInfoList]);
+    setStatus();
     setCurrent(current);
   };
 
@@ -105,18 +113,20 @@ const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
             onFinishFailed={onFinishFailed}
             {...layout}
           >
-            {stepInfoList.map((stepInfo) => (
-              <div
-                key={stepInfo.key}
-                style={
-                  current === stepInfo.key
-                    ? { display: 'block' }
-                    : { display: 'none' }
-                }
-              >
-                {stepInfo.component(formRef)}
-              </div>
-            ))}
+            <FormRefContext.Provider value={formRef}>
+              {stepInfoList.map((stepInfo) => (
+                <div
+                  key={stepInfo.key}
+                  style={
+                    current === stepInfo.key
+                      ? { display: 'block' }
+                      : { display: 'none' }
+                  }
+                >
+                  {stepInfo.component}
+                </div>
+              ))}
+            </FormRefContext.Provider>
           </Form>
         </section>
       </section>
