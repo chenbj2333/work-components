@@ -37,8 +37,11 @@ const BaseSetting: React.FC<IBaseSettingProps> = ({
   // 检查镜像和镜像tag的总长度
   const imageTagValidator = (rule: any, value: string) => {
     const values = formRef.current?.getFieldsValue();
-    let sumLen = Number(values[dataWrapperName].image.length + value.length);
-    if (!isNaN(sumLen) && sumLen > 254) {
+    const imageLen = values[dataWrapperName].image?.length
+      ? values[dataWrapperName].image?.length
+      : 0;
+    const imageTagLen = value?.length ? value.length : 0;
+    if (imageLen + imageTagLen > 254) {
       return Promise.reject(new Error('镜像的完整名称长度不能超过254'));
     }
     return Promise.resolve();
@@ -94,7 +97,12 @@ const BaseSetting: React.FC<IBaseSettingProps> = ({
         rules={[{ required: true, message: 'CPU核数不能为空' }]}
         label={itemLabel('CPU核数(毫核)', FieldMessage.cpuResource)}
       >
-        <InputNumber placeholder='请输入CPU核数' style={{ width: '100%' }} />
+        <InputNumber
+          min={10}
+          max={64000}
+          placeholder='请输入CPU核数'
+          style={{ width: '100%' }}
+        />
       </Form.Item>
       <Form.Item
         name={[`${dataWrapperName}`, 'memoryResource']}
@@ -103,7 +111,12 @@ const BaseSetting: React.FC<IBaseSettingProps> = ({
         rules={[{ required: true, message: '内存容量不能为空' }]}
         label={itemLabel('内存容量(M)', FieldMessage.memoryResource)}
       >
-        <InputNumber placeholder='请输入内存容量' style={{ width: '100%' }} />
+        <InputNumber
+          min={10}
+          max={131071}
+          placeholder='请输入内存容量'
+          style={{ width: '100%' }}
+        />
       </Form.Item>
     </>
   );

@@ -4,6 +4,7 @@ import StepForm, { stepStatusType } from '..';
 import axios from '../../../axios';
 import DispatchSetting from './DispatchSetting';
 import BaseSetting from './BaseSetting';
+import CopySetting from './CopySetting';
 
 const StepFormDemo: FC = () => {
   const [visible, setVisible] = useState(false);
@@ -16,15 +17,15 @@ const StepFormDemo: FC = () => {
       dataWrapperName: 'base',
       component: <BaseSetting dataWrapperName='base' originData={originData} />,
     },
-    // {
-    //   key: 1,
-    //   status: 'wait' as stepStatusType,
-    //   name: '副本设置(必填)',
-    //   dataWrapperName: 'fuben',
-    //   data: fubenJSON,
-    // },
     {
       key: 1,
+      status: 'wait' as stepStatusType,
+      name: '副本设置(必填)',
+      dataWrapperName: 'copy',
+      component: <CopySetting dataWrapperName='copy' originData={originData} />,
+    },
+    {
+      key: 2,
       status: 'wait' as stepStatusType,
       name: '调度设置(选填)',
       dataWrapperName: 'dispatch',
