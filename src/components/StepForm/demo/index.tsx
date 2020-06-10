@@ -3,18 +3,19 @@ import { Drawer, Button } from 'antd';
 import StepForm, { stepStatusType } from '..';
 import axios from '../../../axios';
 import DispatchSetting from './DispatchSetting';
+import BaseSetting from './BaseSetting';
 
 const StepFormDemo: FC = () => {
   const [visible, setVisible] = useState(false);
   const [originData, setOriginData] = useState(null);
   const stepInfoList = [
-    // {
-    //   key: 0,
-    //   status: 'process' as stepStatusType,
-    //   name: '基础配置(必填)',
-    //   dataWrapperName: 'baseInfo',
-    //   data: baseJSON,
-    // },
+    {
+      key: 0,
+      status: 'process' as stepStatusType,
+      name: '基础配置(必填)',
+      dataWrapperName: 'base',
+      component: <BaseSetting dataWrapperName='base' originData={originData} />,
+    },
     // {
     //   key: 1,
     //   status: 'wait' as stepStatusType,
@@ -23,8 +24,8 @@ const StepFormDemo: FC = () => {
     //   data: fubenJSON,
     // },
     {
-      key: 0,
-      status: 'process' as stepStatusType,
+      key: 1,
+      status: 'wait' as stepStatusType,
       name: '调度设置(选填)',
       dataWrapperName: 'dispatch',
       component: (

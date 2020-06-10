@@ -85,7 +85,15 @@ const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
 
   const handleChange = (current: number) => {
     console.log('onChange:', current);
-    setStatus();
+    stepInfoList.forEach((item) => {
+      if (item.status !== 'error') {
+        item.status = 'wait';
+      }
+      if (item.key === current) {
+        item.status = 'process';
+      }
+    });
+    setStepInfoList([...stepInfoList]);
     setCurrent(current);
   };
 
