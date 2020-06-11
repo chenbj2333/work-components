@@ -9,42 +9,48 @@ const layout = {
   wrapperCol: { span: 17 },
 };
 
-export type stepStatusType =
+export type TStepStatusType =
   | 'error'
   | 'wait'
   | 'process'
   | 'finish'
   | undefined;
 
+export interface stepInfoItem {
+  key: number;
+  name: string;
+  status: TStepStatusType;
+  description?: string;
+  dataWrapperName?: string;
+  component: ReactNode;
+}
+
 export interface IStepFormProps {
-  originStepInfoList: {
-    key: number;
-    name: string;
-    status: stepStatusType;
-    description?: string;
-    dataWrapperName?: string;
-    component: ReactNode;
-    // data: IStepFormContentItem[];
-  }[];
+  originStepInfoList: stepInfoItem[];
   onCloseFun: () => void;
+  submitFun: (values: any) => void;
 }
 
 export let FormRefContext: any = createContext(null);
 
-const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
+const StepForm: FC<IStepFormProps> = ({
+  originStepInfoList,
+  onCloseFun,
+  submitFun,
+}) => {
   const [form] = Form.useForm();
   const formRef = useRef(form);
   const [current, setCurrent] = useState(originStepInfoList[0]?.key);
   const [stepInfoList, setStepInfoList] = useState(originStepInfoList);
 
   // 设置状态
-  const setStatus = () => {
-    stepInfoList.forEach((item) => {
+  const setStatus = (cur: number) => {
+    stepInfoList.forEach((item: stepInfoItem) => {
       if (item.status !== 'error') {
-        item.status = 'wait';
+        Reflect.set(item, 'status', 'wait');
       }
-      if (item.key === current) {
-        item.status = 'process';
+      if (item.key === cur) {
+        Reflect.set(item, 'status', 'process');
       }
     });
     setStepInfoList([...stepInfoList]);
@@ -52,11 +58,11 @@ const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
 
   // 提交
   const submitClick = () => {
-    setStatus();
+    setStatus(current);
     formRef.current.submit();
   };
   const onFinish = (values: any) => {
-    console.log('Success:', values);
+    submitFun(values);
   };
 
   const onFinishFailed = (props: {
@@ -83,18 +89,10 @@ const StepForm: FC<IStepFormProps> = ({ originStepInfoList, onCloseFun }) => {
     setStepInfoList([...stepInfoList]);
   };
 
-  const handleChange = (current: number) => {
+  const handleChange = (cur: number) => {
     console.log('onChange:', current);
-    stepInfoList.forEach((item) => {
-      if (item.status !== 'error') {
-        item.status = 'wait';
-      }
-      if (item.key === current) {
-        item.status = 'process';
-      }
-    });
-    setStepInfoList([...stepInfoList]);
-    setCurrent(current);
+    setStatus(cur);
+    setCurrent(cur);
   };
 
   return (

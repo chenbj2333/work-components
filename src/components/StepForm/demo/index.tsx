@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react';
 import { Drawer, Button } from 'antd';
-import StepForm, { stepStatusType } from '..';
+import StepForm, { TStepStatusType } from '..';
 import axios from '../../../axios';
 import DispatchSetting from './DispatchSetting';
 import BaseSetting from './BaseSetting';
@@ -12,21 +12,21 @@ const StepFormDemo: FC = () => {
   const stepInfoList = [
     {
       key: 0,
-      status: 'process' as stepStatusType,
+      status: 'process' as TStepStatusType,
       name: '基础配置(必填)',
       dataWrapperName: 'base',
       component: <BaseSetting dataWrapperName='base' originData={originData} />,
     },
     {
       key: 1,
-      status: 'wait' as stepStatusType,
+      status: 'wait' as TStepStatusType,
       name: '副本设置(必填)',
       dataWrapperName: 'copy',
       component: <CopySetting dataWrapperName='copy' originData={originData} />,
     },
     {
       key: 2,
-      status: 'wait' as stepStatusType,
+      status: 'wait' as TStepStatusType,
       name: '调度设置(选填)',
       dataWrapperName: 'dispatch',
       component: (
@@ -92,6 +92,10 @@ const StepFormDemo: FC = () => {
     });
   };
 
+  const submit = (values: any) => {
+    console.log(values);
+  };
+
   return (
     <>
       <Button type='primary' onClick={showDrawer}>
@@ -109,7 +113,11 @@ const StepFormDemo: FC = () => {
         visible={visible}
       >
         {visible && (
-          <StepForm originStepInfoList={stepInfoList} onCloseFun={onClose} />
+          <StepForm
+            originStepInfoList={stepInfoList}
+            onCloseFun={onClose}
+            submitFun={submit}
+          />
         )}
       </Drawer>
     </>
