@@ -1,53 +1,87 @@
-import React, { FC, useState, useRef } from 'react';
+/*
+ * @Description: 分步表单组件
+ * @Author: ChenBingJie
+ * @Date: 2020-06-11 10:06:04
+ * @Last Modified by: ChenBingJie
+ * @Last Modified time: 2020-06-15 19:37:30
+ */
+
+import React, { FC, useState, useRef, ReactNode, createContext } from 'react';
 import { Steps, Button, Form } from 'antd';
 import './index.less';
-import StepFormContent, { IStepFormContentItem } from './StepFormContent';
 
 const { Step } = Steps;
 
 const layout = {
-  labelCol: { span: 8 },
-  wrapperCol: { span: 16 },
+  labelCol: { span: 7 },
+  wrapperCol: { span: 17 },
 };
 
-export type stepStatusType =
+export type TStepStatusType =
   | 'error'
   | 'wait'
   | 'process'
   | 'finish'
   | undefined;
 
-export interface IStepFormProps {
-  originStepInfoList: {
-    key: number;
-    name: string;
-    status: stepStatusType;
-    description?: string;
-    dataWrapperName: string;
-    data: IStepFormContentItem[];
-  }[];
-  onCloseFun: () => void;
-  originData: any;
+export interface stepInfoItem {
+  key: number | number;
+  name: string;
+  status: TStepStatusType;
+  description?: string;
+  dataWrapperName?: string;
+  component: ReactNode;
 }
+
+export interface IStepFormProps {
+  originStepInfoList: stepInfoItem[];
+  onCloseFun: () => void;
+  submitFun: (values: any) => void;
+  btnLoading?: boolean;
+  style?: any;
+  btnText?: string;
+}
+
+export const FormRefContext: any = createContext(null);
 
 const StepForm: FC<IStepFormProps> = ({
   originStepInfoList,
   onCloseFun,
-  originData,
+  submitFun,
+  btnLoading,
+  style,
+  btnText,
 }) => {
   const [form] = Form.useForm();
   const formRef = useRef(form);
   const [current, setCurrent] = useState(originStepInfoList[0]?.key);
   const [stepInfoList, setStepInfoList] = useState(originStepInfoList);
 
-  // 提交
-  const submitClick = () => {
-    formRef.current.submit();
-  };
-  const onFinish = (values: any) => {
-    console.log('Success:', values);
+  // 设置状态
+  const setStatus = (cur: number) => {
+    stepInfoList.forEach((item: stepInfoItem) => {
+      if (item.status !== 'error') {
+        Reflect.set(item, 'status', 'wait');
+      }
+      if (item.key === cur) {
+        Reflect.set(item, 'status', 'process');
+      }
+    });
+    setStepInfoList([...stepInfoList]);
   };
 
+  // 提交
+  const submitClick = () => {
+    setStatus(current);
+    formRef.current.submit();
+  };
+
+  // 表单成功的回调
+  const onFinish = (values: any) => {
+    submitFun(values);
+  };
+
+  // 表单失败的回调
   const onFinishFailed = (props: {
     values: any;
     errorFields: any;
@@ -62,34 +96,24 @@ const StepForm: FC<IStepFormProps> = ({
     });
     // @ts-ignore
     const errNames = [...new Set(errItem)];
-    const newData: any[] = JSON.parse(JSON.stringify(stepInfoList));
     errNames.forEach((name) => {
-      newData.forEach((info) => {
+      stepInfoList.forEach((info) => {
         if (name === info.dataWrapperName) {
-          info.status = 'error';
+          Reflect.set(info, 'status', 'error');
         }
       });
     });
-    setStepInfoList(newData);
+    setStepInfoList([...stepInfoList]);
   };
 
-  const handleChange = (current: number) => {
-    console.log('onChange:', current);
-    const newData: any[] = JSON.parse(JSON.stringify(stepInfoList));
-    newData.forEach((item) => {
-      if (item.status !== 'error') {
-        item.status = 'wait';
-      }
-      if (item.key === current) {
-        item.status = 'process';
-      }
-    });
-    setStepInfoList(newData);
-    setCurrent(current);
+  // 步骤条变化
+  const handleChange = (cur: number) => {
+    setStatus(cur);
+    setCurrent(cur);
   };
 
   return (
-    <div className='stepform-wrapper'>
+    <div className='stepform-wrapper' style={style}>
       <section className='stepform-content'>
         <section className='stepform-left'>
           <Steps current={current} onChange={handleChange} direction='vertical'>
@@ -112,22 +136,20 @@ const StepForm: FC<IStepFormProps> = ({
             onFinishFailed={onFinishFailed}
             {...layout}
           >
-            {stepInfoList.map((stepInfo) => (
-              <div
-                key={stepInfo.key}
-                style={
-                  current === stepInfo.key
-                    ? { display: 'block' }
-                    : { display: 'none' }
-                }
-              >
-                <StepFormContent
-                  dataWrapperName={stepInfo.dataWrapperName}
-                  infoItem={stepInfo.data}
-                  originData={originData}
-                />
-              </div>
-            ))}
+            <FormRefContext.Provider value={formRef}>
+              {stepInfoList.map((stepInfo) => (
+                <div
+                  key={stepInfo.key}
+                  style={
+                    current === stepInfo.key
+                      ? { display: 'block' }
+                      : { display: 'none' }
+                  }
+                >
+                  {stepInfo.component}
+                </div>
+              ))}
+            </FormRefContext.Provider>
           </Form>
         </section>
       </section>
@@ -136,11 +158,12 @@ const StepForm: FC<IStepFormProps> = ({
           取消
         </Button>
         <Button
+          loading={btnLoading}
           type='primary'
           className='stepform-footer-btn'
           onClick={submitClick}
         >
-          提交
+          {btnText || '提交'}
         </Button>
       </footer>
     </div>

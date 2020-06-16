@@ -1,13 +1,11 @@
 import React from 'react';
 import './App.less';
-import StepFormDemo from './components/StepForm/demo';
-// import AxiosDemo from './axios/demo';
+import AxiosDemo from './axios/demo';
 
 function App() {
   return (
     <div>
-      {/* <AxiosDemo /> */}
-      <StepFormDemo />
+      <AxiosDemo />
     </div>
   );
 }

@@ -3,11 +3,28 @@
  * @Author: ChenBingJie
  * @Date: 2020-05-11 11:15:07
  * @Last Modified by: ChenBingJie
- * @Last Modified time: 2020-05-11 20:26:02
+ * @Last Modified time: 2020-06-10 14:34:59
  */
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Form, Button, Input, Select } from 'antd';
-import { MinusCircleOutlined } from '@ant-design/icons';
+import {
+  Row,
+  Col,
+  Form,
+  Button,
+  Input,
+  Select,
+  InputNumber,
+  Tooltip,
+} from 'antd';
+import {
+  MinusCircleOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from '@ant-design/icons';
+import useDebounceFn from '@/hooks/useDebounceFn';
+import { generateHash } from '@/utils';
+// import ApparafileConfig from '@/config/apparafile';
+import './index.less';
 
 export type formSelectOption = {
   value: string;
@@ -25,10 +42,16 @@ export interface IFormItem {
   rules?: any[]; // 验证规则
   hasAddonAfter?: boolean; // 是否有后缀
   options?: formSelectOption[]; // select选项
+  validateFirst?: boolean; // 一组校验不通过是否停止剩下的校验(已经内置为true，整理代码时应删掉此属性)
+  precision?: number; // 数字精度
+  max?: number; // 数字最大值
+  min?: number; // 数字最小值
   onSelectChange?: (value: string, option: any, element: IFormItem) => void; // select值变化时调用的方法
+  row?: number; // textarea的行数
 }
 
 export interface IFormTemplate {
+  hasUpload?: boolean; // 是否有上传按钮
   [name: string]: IFormItem | any;
 }
 
@@ -42,19 +65,26 @@ export interface IDynamicFormProps {
   originData: IFormListItem[];
   formRef: any;
   formListName?: string;
+  wrapperName?: string;
   isAutoCheck?: boolean;
   style?: any;
+  addBtnName?: string; // 添加按钮的文字描述，默认为添加
+  addBtnColSpan?: number; // 添加按钮的长度(栅格)
 }
 
 const { Option } = Select;
+const { TextArea } = Input;
 
 const DynamicForm: React.FC<IDynamicFormProps> = ({
   formItemTemplate,
   originData,
   keyName,
   formRef,
+  wrapperName,
   formListName,
   isAutoCheck,
+  addBtnName,
+  addBtnColSpan,
   style,
 }) => {
   const colNum = keyName.length;
@@ -71,10 +101,42 @@ const DynamicForm: React.FC<IDynamicFormProps> = ({
     if (isAutoCheck && formList.length > 0) {
       formRef.current.validateFields();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formList]);
 
+  const { run } = useDebounceFn(() => setFormList([...formList]), 500);
   const valueChange = () => {
-    setFormList([...formList]);
+    run();
+  };
+
+  const generateFormName = (
+    id: string | number,
+    name: string | number,
+    key?: string | number
+  ) => {
+    if (key) {
+      if (wrapperName && formListName) {
+        return [
+          `${wrapperName}`,
+          `${formListName}`,
+          `${id}`,
+          `${name}`,
+          `${key}`,
+        ];
+      }
+      if (!wrapperName && formListName) {
+        return [`${formListName}`, `${id}`, `${name}`, `${key}`];
+      }
+      return [`${id}`, `${name}`, `${key}`];
+    } else {
+      if (wrapperName && formListName) {
+        return [`${wrapperName}`, `${formListName}`, `${id}`, `${name}`];
+      }
+      if (!wrapperName && formListName) {
+        return [`${formListName}`, `${id}`, `${name}`];
+      }
+      return [`${id}`, `${name}`];
+    }
   };
 
   // 添加新表单项
@@ -82,7 +144,7 @@ const DynamicForm: React.FC<IDynamicFormProps> = ({
     setFormList([
       ...formList,
       {
-        id:  new Date().getTime(),
+        id: generateHash(),
         ...formItemTemplate,
       },
     ]);
@@ -94,12 +156,28 @@ const DynamicForm: React.FC<IDynamicFormProps> = ({
     setFormList(newArr);
   };
 
+  // 上传文件
+  const uploadFile = (item: IFormListItem) => {
+    item.uploadFile(item);
+  };
+
   const input = (element: IFormItem) => (
     <Input
       allowClear
       placeholder={element.placeholder}
       disabled={element.disabled}
       onChange={valueChange}
+    />
+  );
+  const inputNumber = (element: IFormItem) => (
+    <InputNumber
+      placeholder={element.placeholder}
+      disabled={element.disabled}
+      precision={element.precision}
+      max={element.max}
+      min={element.min}
+      onChange={valueChange}
+      style={{ width: '100%' }}
     />
   );
 
@@ -118,16 +196,36 @@ const DynamicForm: React.FC<IDynamicFormProps> = ({
     </Select>
   );
 
-  const content = (item: IFormListItem, name: string): React.ReactElement | null => {
+  const textArea = (item: IFormListItem, name: string, element: IFormItem) => {
+    return (
+      <Form.Item
+        key={`${item.id}-${name}-${element.key}`}
+        name={generateFormName(item.id, name)}
+        initialValue={element.value}
+        rules={element.rules}
+      >
+        <TextArea
+          rows={element.row}
+          placeholder={element.placeholder}
+          onChange={valueChange}
+          allowClear
+        />
+      </Form.Item>
+    );
+  };
+
+  const content = (
+    item: IFormListItem,
+    name: string
+  ): React.ReactElement | null => {
     const element = item[name];
     const reactEle: { [name: string]: React.ReactElement } = {
       select: (
         <Form.Item
-          name={
-            formListName ? [`${formListName}`, `${item.id}`, `${name}`] : [`${item.id}`, `${name}`]
-          }
+          name={generateFormName(item.id, name)}
           initialValue={element.value}
           rules={element.rules}
+          validateFirst
         >
           {select(element)}
         </Form.Item>
@@ -140,14 +238,15 @@ const DynamicForm: React.FC<IDynamicFormProps> = ({
                 return (
                   <Form.Item
                     key={`${item.id}-${name}-${g.key}`}
-                    name={
-                      formListName
-                        ? [`${formListName}`, `${item.id}`, `${name}`, `${g.key}`]
-                        : [`${item.id}`, `${name}`, `${g.key}`]
-                    }
+                    name={generateFormName(item.id, name, g.key)}
                     initialValue={g.value}
                     rules={g.rules}
-                    style={element.hasAddonAfter ? { width: '80%' } : { width: '100%' }}
+                    validateFirst
+                    style={
+                      element.hasAddonAfter
+                        ? { width: '80%' }
+                        : { width: '100%' }
+                    }
                   >
                     {input(g)}
                   </Form.Item>
@@ -157,13 +256,10 @@ const DynamicForm: React.FC<IDynamicFormProps> = ({
                 return (
                   <Form.Item
                     key={`${item.id}-${name}-${g.key}`}
-                    name={
-                      formListName
-                        ? [`${formListName}`, `${item.id}`, `${name}`, `${g.key}`]
-                        : [`${item.id}`, `${name}`, `${g.key}`]
-                    }
+                    name={generateFormName(item.id, name, g.key)}
                     initialValue={g.value}
                     rules={g.rules}
+                    validateFirst
                     style={{ width: '20%' }}
                   >
                     {select(g)}
@@ -174,53 +270,110 @@ const DynamicForm: React.FC<IDynamicFormProps> = ({
             })}
         </Input.Group>
       ),
+      inputNumber: (
+        <Form.Item
+          key={`${item.id}-${name}-${element.key}`}
+          name={generateFormName(item.id, name)}
+          initialValue={element.value}
+          rules={element.rules}
+        >
+          {inputNumber(element)}
+        </Form.Item>
+      ),
+      textArea: textArea(item, name, element),
     };
     return reactEle[element.componentName] || null;
   };
 
   return (
-    <div style={{ ...style, overflowX: 'hidden' }}>
+    <div style={{ ...style, overflowX: 'hidden', paddingTop: 1 }}>
       {formList.length > 0 &&
-        formList.map((item: IFormListItem) => (
-          <Row key={item.id} style={{ display: 'flex' }} gutter={16}>
-            <Col span={22}>
-              <Row gutter={16}>
-                {keyName.map((name: string) => (
-                  <Col key={name} span={24 / colNum}>
-                    {content(item, name)}
+        formList.map((item: IFormListItem) => {
+          return item.hasUpload ? (
+            <Row
+              id='dynamic-form-id'
+              key={item.id}
+              style={{ display: 'flex', position: 'relative' }}
+              gutter={16}
+            >
+              <Col span={24}>
+                <Row>
+                  {keyName.map((name: string) => (
+                    <Col
+                      key={name}
+                      span={item[name].componentName === 'textArea' ? 24 : 20}
+                      style={{ position: 'relative' }}
+                    >
+                      {content(item, name)}
+                    </Col>
+                  ))}
+                </Row>
+              </Col>
+              <div style={{ position: 'absolute', right: 0, width: 64 }}>
+                <Row>
+                  <Col
+                    span={12}
+                    onChange={() => uploadFile(item)}
+                    style={{ position: 'relative' }}
+                  >
+                    <Form.Item style={{ textAlign: 'center' }}>
+                      <Tooltip
+                        placement='topRight'
+                        title='上传文件'
+                        getPopupContainer={() =>
+                          document.getElementById('dynamic-form-id')
+                            ?.parentNode as HTMLElement
+                        }
+                      >
+                        <input
+                          type='file'
+                          id={`upload-file-${item.id}`}
+                          accept={item.uploadFileType}
+                          title=''
+                          className='dynamic-form-upload'
+                        />
+                      </Tooltip>
+                      <UploadOutlined />
+                    </Form.Item>
                   </Col>
-                ))}
-              </Row>
-            </Col>
-            <Col key="minus-btn" span={2}>
-              <Form.Item>
-                <MinusCircleOutlined type="minus-circle" onClick={() => deleteItem(item)} />
-              </Form.Item>
-            </Col>
-          </Row>
-        ))}
-      <Button type="link" onClick={addTags}>
-        添加
-      </Button>
+                  <Col span={12}>
+                    <Form.Item style={{ textAlign: 'center' }}>
+                      <MinusCircleOutlined onClick={() => deleteItem(item)} />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </div>
+            </Row>
+          ) : (
+            <Row key={item.id} style={{ display: 'flex' }} gutter={8}>
+              <Col span={22}>
+                <Row gutter={8}>
+                  {keyName.map((name: string) => (
+                    <Col key={name} span={24 / colNum}>
+                      {content(item, name)}
+                    </Col>
+                  ))}
+                </Row>
+              </Col>
+              <Col key='minus-btn' span={2}>
+                {!item.isRequired ? (
+                  <Form.Item>
+                    <MinusCircleOutlined onClick={() => deleteItem(item)} />
+                  </Form.Item>
+                ) : null}
+              </Col>
+            </Row>
+          );
+        })}
+      <Row>
+        <Col span={addBtnColSpan || 24}>
+          <Button type='dashed' onClick={addTags} style={{ width: '100%' }}>
+            <PlusOutlined /> {addBtnName || '添加'}
+          </Button>
+        </Col>
+      </Row>
     </div>
   );
 };
 
 export default DynamicForm;
-
-// 切换select的值, 影响联动效果(例子)
-// const handleSelectChange = (
-//   value: string,
-//   option: any,
-//   item: IFormListItem
-// ) => {
-//   const flag = option.key.split('-')[1];
-//   let newArr: IFormListItem[] = [];
-//   formList.forEach((arrItem) => {
-//     if (arrItem.id === item.id) {
-//       arrItem.hasAddonAfter = flag === 'true';
-//     }
-//     newArr.push(arrItem);
-//   });
-//   setFormList(newArr);
-// };

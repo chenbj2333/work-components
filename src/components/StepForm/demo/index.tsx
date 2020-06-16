@@ -1,126 +1,194 @@
-import React, { FC, useState } from 'react';
-import { Drawer, Button } from 'antd';
-import StepForm, { stepStatusType } from '..';
-import baseJSON from './baseJSON';
-import fubenJSON from './fubenJSON';
-import axios from '../../../axios';
-import { diaoduJSON, diaoduFormItemTemplate } from './diaoduJSON';
+import React, { useState, useEffect, useReducer, createContext } from 'react';
+import { message, Spin, Popover } from 'antd';
+import { QuestionCircleOutlined } from '@ant-design/icons';
+import axios from '@/axios';
+import useEventEmitter from '@/hooks/useEventEmitter';
+import BaseSetting from './BaseSetting';
+import CopySetting from './CopySetting';
+import DispatchSetting from './DispatchSetting';
+import { initialState, reducer } from './store';
+import StepForm, { stepInfoItem, TStepStatusType } from '..';
 
-const StepFormDemo: FC = () => {
-  const [visible, setVisible] = useState(false);
-  const [stepInfoList, setStepInfoList] = useState([
+export interface ICreateDeployProps {
+  refreshFun: Function;
+  applicationName: string;
+  onClose: () => void;
+}
+
+export const itemLabel = (label: string, tipMsg?: string) => {
+  if (tipMsg) {
+    return (
+      <span>
+        <span style={{ marginRight: 4 }}>{label}</span>
+        <Popover
+          content={tipMsg}
+          getPopupContainer={(trigger) => {
+            return trigger.parentNode?.parentNode?.parentNode?.parentNode
+              ?.parentNode as HTMLElement;
+          }}
+        >
+          <QuestionCircleOutlined />
+        </Popover>
+      </span>
+    );
+  }
+  return label;
+};
+
+export const DataContext: any = createContext(null);
+
+const CreateDeploy: React.FC<ICreateDeployProps> = ({
+  applicationName,
+  onClose,
+  refreshFun,
+}) => {
+  const [loading, setLoading] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const [commonFormData, dispatch] = useReducer(reducer, initialState);
+  const wrapperNames = [
+    'base',
+    'copy',
+    'dispatch',
+    'health',
+    'storage',
+    'launch',
+  ];
+  const applicationNameEmitter = useEventEmitter<string>();
+  const [stepInfoList, setStepInfoList] = useState<stepInfoItem[]>([
     {
       key: 0,
-      status: 'process' as stepStatusType,
+      status: 'process' as TStepStatusType,
       name: '基础配置(必填)',
-      dataWrapperName: 'baseInfo',
-      data: baseJSON,
+      dataWrapperName: wrapperNames[0],
+      component: (
+        <BaseSetting
+          dataWrapperName={wrapperNames[0]}
+          applicationNameEmitter={applicationNameEmitter}
+        />
+      ),
     },
     {
       key: 1,
-      status: 'wait' as stepStatusType,
+      status: 'wait' as TStepStatusType,
       name: '副本设置(必填)',
-      dataWrapperName: 'fuben',
-      data: fubenJSON,
+      dataWrapperName: wrapperNames[1],
+      component: <CopySetting dataWrapperName={wrapperNames[1]} />,
     },
     {
       key: 2,
-      status: 'wait' as stepStatusType,
+      status: 'wait' as TStepStatusType,
       name: '调度设置(选填)',
-      dataWrapperName: 'diaodu',
-      data: diaoduJSON,
+      dataWrapperName: wrapperNames[2],
+      component: <DispatchSetting dataWrapperName={wrapperNames[2]} />,
     },
-    // {
-    //   key: 3,
-    //   name: '健康检查设置(选填)',
-    //   dataWrapperName: 'jiankang',
-    //   data: baseJSON,
-    // },
-    // {
-    //   key: 4,
-    //   name: '存储及应用配置声明(选填)',
-    //   dataWrapperName: 'storage',
-    //   data: baseJSON,
-    // },
-    // {
-    //   key: 5,
-    //   name: '启动设置(选填)',
-    //   dataWrapperName: 'start',
-    //   data: baseJSON,
-    // },
   ]);
-  const [originData, setOriginData] = useState(null);
-
-  const showDrawer = () => {
-    setVisible(true);
-    getWorkerList();
-    setOriginData(null);
-    // getApparafileList();
-  };
-  const showUpdateDrawer = () => {
-    setVisible(true);
-    getWorkerList();
-    // getApparafileList();
-    getOriginData({ applicationName: 'abc' });
-  };
-  const onClose = () => {
-    setVisible(false);
-  };
-
-  const getWorkerList = () => {
-    axios({
-      url: 'http://10.0.1.25:9999/api/application/getWorkerList',
-      method: 'get',
-    }).then((res) => {
-      // @ts-ignore
-      stepInfoList[2].data[0].options = res.data.data;
+  applicationNameEmitter.useSubscription((value) => {
+    if (value === 'changeAppName') {
+      stepInfoList[1].status = 'wait';
       setStepInfoList([...stepInfoList]);
+    }
+  });
+
+  // 处理提交表单数组类型
+  const normalizedParams = (data: any): any => {
+    const newArr: any[] = [];
+    Object.keys(data).forEach((key) => {
+      newArr.push({
+        ...data[key],
+      });
     });
+    newArr.forEach((item) => {
+      Object.keys(item).forEach((key: any) => {
+        if (typeof item[key] === 'object') {
+          Reflect.set(item, key, item[key].value);
+        }
+      });
+    });
+    return newArr.length > 0 ? newArr : null;
   };
-  // const getApparafileList = () => {
-  //   axios({
-  //     url: 'http://10.0.1.25:9999/api/application/apparafileList',
-  //     method: 'get',
-  //   }).then((res) => {
-  //     setOriginData(res.data.data);
-  //   });
-  // };
-  const getOriginData = (params: any) => {
+
+  // 处理提交表单键值对类型
+  const normalizedKYParams = (data: any): any => {
+    const result: any = {};
+    const list: any = [];
+    Object.keys(data).forEach((key) => {
+      list.push(data[key]);
+    });
+    list.forEach((item: any) => {
+      result[item.nodeKey.value] = item.nodeValue.value;
+    });
+    return Object.keys(result).length > 0 ? result : null;
+  };
+
+  const submit = (values: any) => {
+    let params: any = {};
+    wrapperNames.forEach((name) => {
+      params = {
+        ...params,
+        ...values[name],
+      };
+    });
+    params.workerAffinity =
+      params.workerAffinity && normalizedParams(params.workerAffinity);
+    if (params.workerAffinity) {
+      params.workerAffinity.forEach((item: any) => {
+        Reflect.set(item, 'values', item.values.split(','));
+      });
+    }
+    params.env = params.env && normalizedParams(params.env);
+    params.volumeMounts =
+      params.volumeMounts && normalizedParams(params.volumeMounts);
+    params.volumes = params.volumes && normalizedParams(params.volumes);
+    params.workerSelector =
+      params.workerSelector && normalizedKYParams(params.workerSelector);
+    console.log(params);
+  };
+
+  // 获取数据
+  const getData = (name: string) => {
+    const params = { applicationName: name };
+    setLoading(true);
+    setVisible(false);
     axios({
       url: 'http://10.0.1.25:9999/api/application/backUpdateApplication',
-      method: 'get',
-      params: params,
-    }).then((res) => {
-      setOriginData(res.data.data);
+      method: 'delete',
+      params,
+    }).then((res: any) => {
+      if (res.err) {
+        message.error(res.err);
+      } else {
+        dispatch({
+          type: 'getOriginData',
+          payload: res.data,
+        });
+        setVisible(true);
+      }
+      setLoading(false);
     });
   };
 
+  useEffect(() => {
+    if (applicationName) {
+      getData(applicationName);
+    }
+  }, [applicationName]);
+
   return (
-    <>
-      <Button type='primary' onClick={showDrawer}>
-        Open
-      </Button>
-      <Button type='primary' onClick={showUpdateDrawer}>
-        更新
-      </Button>
-      <Drawer
-        title='Basic Drawer'
-        placement='right'
-        width={760}
-        bodyStyle={{ padding: 0 }}
-        onClose={onClose}
-        visible={visible}
-      >
-        {visible && (
+    <Spin spinning={loading} style={{ width: '100%', margin: '100px auto' }}>
+      {visible && (
+        <DataContext.Provider value={{ commonFormData, dispatch }}>
           <StepForm
             originStepInfoList={stepInfoList}
-            onCloseFun={onClose}
-            originData={originData}
+            onCloseFun={() => {
+              setVisible(false);
+              onClose();
+            }}
+            submitFun={submit}
           />
-        )}
-      </Drawer>
-    </>
+        </DataContext.Provider>
+      )}
+    </Spin>
   );
 };
 
-export default StepFormDemo;
+export default CreateDeploy;
