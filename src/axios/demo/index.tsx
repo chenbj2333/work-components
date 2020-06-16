@@ -5,7 +5,7 @@ import axios from '..';
 const AxiosDemo: React.FC = () => {
   const getClick = () => {
     axios({
-      url: 'http://10.0.1.25:9999/api/demo/getList',
+      url: 'http://10.0.1.26:9999/api/demo/getList',
       method: 'get',
       params: {
         name: 'abc',
@@ -19,7 +19,7 @@ const AxiosDemo: React.FC = () => {
 
   const postClick = () => {
     axios({
-      url: 'http://10.0.1.25:9999/api/demo/createObj',
+      url: 'http://10.0.1.26:9999/api/demo/createObj',
       method: 'post',
       headers: {
         'Content-Type': 'application/json;charset=utf-8',
@@ -36,7 +36,7 @@ const AxiosDemo: React.FC = () => {
 
   const putClick = () => {
     axios({
-      url: 'http://10.0.1.25:9999/api/demo/updateObj',
+      url: 'http://10.0.1.26:9999/api/demo/updateObj',
       method: 'put',
       headers: {
         'Content-Type': 'application/json;charset=utf-8',
@@ -53,7 +53,7 @@ const AxiosDemo: React.FC = () => {
 
   const deleteClick = () => {
     axios({
-      url: 'http://10.0.1.25:9999/api/demo/deleteObj',
+      url: 'http://10.0.1.26:9999/api/demo/deleteObj',
       method: 'delete',
       params: {
         id: 'deleteid12345',

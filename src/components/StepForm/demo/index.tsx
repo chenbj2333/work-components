@@ -150,7 +150,7 @@ const CreateDeploy: React.FC<ICreateDeployProps> = ({
     setLoading(true);
     setVisible(false);
     axios({
-      url: 'http://10.0.1.25:9999/api/application/backUpdateApplication',
+      url: 'http://10.0.1.26:9999/api/application/backUpdateApplication',
       method: 'delete',
       params,
     }).then((res: any) => {
