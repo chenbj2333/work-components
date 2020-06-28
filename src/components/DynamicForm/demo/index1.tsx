@@ -19,7 +19,10 @@ const DynamicFormDemo: React.FC = () => {
   // 目标值单位
   const targetUnitOptions: formSelectOption[] = [{ value: '%', label: '%' }];
   // 持续时间单位
-  const daretionUnitOptions: formSelectOption[] = [{ value: 's', label: 's' }];
+  const daretionUnitOptions: formSelectOption[] = [
+    { value: 's', label: 's' },
+    { value: 'ms', label: 'ms' },
+  ];
 
   // 确定
   const handleOk = (values: any) => {
@@ -153,7 +156,12 @@ const DynamicFormDemo: React.FC = () => {
           formListName='memo'
         />
         <Form.Item>
-          <Button type='primary' htmlType='submit'>
+          <Button
+            style={{ marginTop: 16 }}
+            block
+            type='primary'
+            htmlType='submit'
+          >
             Submit
           </Button>
         </Form.Item>

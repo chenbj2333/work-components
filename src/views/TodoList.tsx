@@ -44,7 +44,7 @@ const TodoList: React.FC = observer(() => {
   };
 
   return (
-    <div style={{ margin: 100 }}>
+    <>
       <section style={{ marginBottom: 16 }}>
         <Tag icon={<CheckCircleOutlined />} color='success'>
           已完成: {doneCount}
@@ -87,7 +87,7 @@ const TodoList: React.FC = observer(() => {
           )}
         />
       </section>
-    </div>
+    </>
   );
 });
 

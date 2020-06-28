@@ -64,7 +64,7 @@ const AxiosDemo: React.FC = () => {
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: 100 }}>
+    <div style={{ textAlign: 'center' }}>
       <Button type='primary' onClick={getClick}>
         get request
       </Button>

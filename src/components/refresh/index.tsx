@@ -10,11 +10,15 @@ const RefreshBtn: React.FC<IRefreshBtnProps> = ({ delay }) => {
   const [loading, setLoading] = useState(false);
   const [time, setTime] = useState(0);
 
+  const getTimeFlag = () => {
+    return time < 6 && time > 0;
+  };
+
   const handleClick = () => {
     setLoading(true);
     const active = setInterval(() => {
       setTime((preSecond) => {
-        if (preSecond >= 995) {
+        if (preSecond >= 5) {
           console.log(preSecond);
           setLoading(false);
           clearInterval(active);
@@ -28,16 +32,12 @@ const RefreshBtn: React.FC<IRefreshBtnProps> = ({ delay }) => {
   return (
     <div>
       <Button
-        icon={
-          <ReloadOutlined
-          // style={time > 5 || time < 1 ? { opacity: 0 } : null}
-          />
-        }
+        icon={<ReloadOutlined style={getTimeFlag() ? { opacity: 0 } : {}} />}
         onClick={handleClick}
         disabled={loading}
-        style={{ position: 'relative' }}
+        style={{ position: 'relative', width: 82 }}
       >
-        {time < 996 && time > 0 && (
+        {getTimeFlag() && (
           <Progress
             width={18}
             style={{ position: 'absolute', top: 2, left: 8 }}
@@ -46,7 +46,7 @@ const RefreshBtn: React.FC<IRefreshBtnProps> = ({ delay }) => {
             format={(percent) => `${(percent || 0) / 20}`}
           />
         )}
-        刷新
+        <span style={getTimeFlag() ? { marginLeft: 8 } : {}}>刷新</span>
       </Button>
     </div>
   );
