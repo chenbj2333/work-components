@@ -1,5 +1,5 @@
 {
-  "name": "hooks-mobx-ts",
+  "name": "work-test",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -33,6 +33,11 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
+    "react-spring": "^8.0.27",
+    "react-three-fiber": "^4.2.12",
+    "sprite-extend-3d": "^0.14.3",
+    "spritejs": "^3.7.21",
+    "three": "^0.118.3",
     "typescript": "~3.7.2"
   },
   "scripts": {
