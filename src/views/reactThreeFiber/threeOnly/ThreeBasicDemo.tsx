@@ -14,7 +14,7 @@ import React, { useEffect } from 'react';
 
 import * as THREE from 'three';
 
-const ThreeDemo: React.FC = () => {
+const ThreeBasicDemo: React.FC = () => {
   const scene = new THREE.Scene(); // 场景
   const camera = new THREE.PerspectiveCamera(
     75, // 视角 游戏中通常设置60-90
@@ -60,4 +60,4 @@ const ThreeDemo: React.FC = () => {
   return <></>;
 };
 
-export default ThreeDemo;
+export default ThreeBasicDemo;

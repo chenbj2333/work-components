@@ -1,25 +1,11 @@
 import React from 'react';
 import './App.less';
-import ThreeDemo from './views/reactThreeFiber/threeOnly';
-import RefreshBtn from './components/refresh';
+import RTFDemo from './views/reactThreeFiber/rtf';
 
 function App() {
   return (
-    <div
-      style={{
-        width: '100%',
-        height: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      {/* <ThreeDemo /> */}
-      <RefreshBtn
-        refreshFun={() => {
-          console.log('refresh click');
-        }}
-      />
+    <div>
+      <RTFDemo />
     </div>
   );
 }
