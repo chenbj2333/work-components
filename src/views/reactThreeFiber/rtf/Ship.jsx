@@ -4,9 +4,10 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { useLoader } from 'react-three-fiber';
 
 const RTFShip = () => {
-  const gltf = useLoader(GLTFLoader, './ship.json');
+  const gltf = useLoader(GLTFLoader, './ship.gltf');
   console.log(gltf);
   return (
+    <>
     <group rotation={[Math.PI / 2, Math.PI, 0]}>
       <mesh name='Renault_(S,_T1)_0'>
         <bufferGeometry attach='geometry' {...gltf.__$[5].geometry} />
@@ -33,6 +34,11 @@ const RTFShip = () => {
         <meshBasicMaterial attach='material' color='teal' />
       </mesh>
     </group>
+    {/* <mesh scale={[1, 1, 30]} position={[0, 1, 30]}>
+    <dodecahedronBufferGeometry attach="geometry" args={[1.5, 0]} />
+    <meshBasicMaterial attach="material" color="lightblue" />
+  </mesh> */}
+  </>
   );
 };
 
