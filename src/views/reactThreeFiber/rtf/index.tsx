@@ -1,24 +1,50 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useState, useRef } from 'react';
 import { Canvas } from 'react-three-fiber';
 import * as THREE from 'three';
-import RTFRocks from './Ship.jsx';
+import RTFShip from './plane/Ship';
+import RTFGround from './plane/Ground';
+import Stars from './plane/Stars';
 
 const RTFDemo: React.FC = () => {
+  // const handleKeyPress = (e: any) => {
+  //   console.log(134);
+  //   console.log(e);
+  // };
   return (
     <Canvas
       concurrent
       style={{ height: '100vh' }}
       gl={{ antialias: true }}
-      camera={{ fov: 45, position: [-30, 40, 30], near: 0.1, far: 1000 }}
+      camera={{ fov: 75, position: [0, 0, 2000], near: 0.01, far: 10000 }}
       onCreated={({ gl, camera }) => {
-        gl.setClearColor(new THREE.Color('#eee'));
-        // gl.shadowMapEnabled = true;
+        gl.setClearColor(new THREE.Color('#020209'));
       }}
+      // updateDefaultCamera={true}
+      // onKeyDown={(e) => handleKeyPress(e)}
     >
-      <fog color={new THREE.Color('#fff')} near={0.015} far={100} />
-      <spotLight position={[-40, 60, -10]} color='#ffffff' />
+      {/* <fog color={new THREE.Color('#fff')} near={0.015} far={100} /> */}
+      {/* <spotLight position={[-40, 60, -10]} color='#ffffff' /> */}
+      <fog attach='fog' args={['#070710', 100, 700]} />
+      <ambientLight intensity={0.7} />
+      <Stars />
+      <RTFGround />
       <Suspense fallback={null}>
-        <RTFRocks />
+        <RTFShip
+          position={[0, -5, 1930]}
+          rotation={[Math.PI / 1.9, Math.PI, 0]}
+        />
+      </Suspense>
+      <Suspense fallback={null}>
+        <RTFShip
+          position={[-20, -10, 1940]}
+          rotation={[Math.PI / 2, (Math.PI * 4.5) / 5, 0]}
+        />
+      </Suspense>
+      <Suspense fallback={null}>
+        <RTFShip
+          position={[20, -10, 1940]}
+          rotation={[Math.PI / 2, -(Math.PI * 4.5) / 5, 0]}
+        />
       </Suspense>
     </Canvas>
   );
