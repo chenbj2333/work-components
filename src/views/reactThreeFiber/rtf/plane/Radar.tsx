@@ -16,7 +16,10 @@ const RTFRadar = () => {
 
   return (
     <mesh ref={radarRef} position={[30, -15, 1700]}>
-      <sphereBufferGeometry attach='geometry' args={[70, 32, 32]} />
+      <sphereBufferGeometry
+        attach='geometry'
+        args={[70, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2]}
+      />
       <meshLambertMaterial
         attach='material'
         color='red'
