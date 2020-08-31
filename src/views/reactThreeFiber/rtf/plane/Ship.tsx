@@ -16,6 +16,7 @@ const RTFShip: React.FC<IRTFShipType> = ({ position, rotation }) => {
 
   const fbx: any = useLoader(FBXLoader, './zsj.fbx');
   const texture = useLoader(THREE.TextureLoader, '/ship.png');
+  // const [mixer] = useState(() => new THREE.AnimationMixer());
   console.log(fbx);
   console.log(texture);
   // const gltf: any = useLoader(GLTFLoader, './shipold.gltf');
@@ -29,7 +30,8 @@ const RTFShip: React.FC<IRTFShipType> = ({ position, rotation }) => {
 
   return (
     <group ref={mainRef}>
-      <pointLight distance={100} intensity={0} color='lightgreen' />
+      {/* <pointLight distance={100} intensity={0} color='lightgreen' /> */}
+      <ambientLight intensity={1} color='#384575' />
       {/* <scene position={position} scale={[0.1, 0.1, 0.1]}>
         <primitive object={fbx} material={material}>
           <texture {...texture} />
@@ -41,7 +43,11 @@ const RTFShip: React.FC<IRTFShipType> = ({ position, rotation }) => {
           />
         </primitive>
       </scene> */}
-      <mesh position={position} scale={[0.1, 0.1, 0.1]}>
+      <mesh
+        position={position}
+        scale={[0.1, 0.1, 0.1]}
+        rotation={[0, Math.PI / 2, 0]}
+      >
         <primitive object={fbx} attach='geometry' />
         <meshPhongMaterial attach='material' map={texture} />
       </mesh>
