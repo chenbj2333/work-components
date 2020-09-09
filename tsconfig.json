@@ -23,5 +23,11 @@
   "include": [
     "src"
   ],
-  "extends": "./paths.json"
+  "extends": "./paths.json",
+  "typeRoots": [
+    "./node_modules/phaser/types"
+  ],
+  "types": [
+    "Phaser"
+  ]
 }
