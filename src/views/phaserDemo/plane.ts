@@ -1,4 +1,4 @@
-// 我军飞机
+// 飞机
 export const plane = {
   preload: function (
     _this: Phaser.Scene,
@@ -7,7 +7,7 @@ export const plane = {
     name: string
   ) {
     const imageName = name.split('-')[0];
-    _this.load.spritesheet(name, `/images/${imageName}.png`, {
+    return _this.load.spritesheet(name, `/images/${imageName}.png`, {
       frameWidth: width,
       frameHeight: height,
     });
@@ -32,5 +32,28 @@ export const plane = {
       });
       plane.anims.play(frameName);
     }
+    return plane;
   },
 };
+
+// 创建我军飞机
+export function createMyPlane(_this: Phaser.Scene) {
+  const warningPlanePos: [number, number] = [200, window.innerHeight / 2];
+  plane.create(_this, warningPlanePos, 90, 'demo', 'fly').setDepth(1);
+}
+
+// 创建敌军飞机
+export function createEnemyPlane(_this: Phaser.Scene) {
+  // 创建敌机1
+  const foePlanePos1: [number, number] = [
+    window.innerWidth - 200,
+    window.innerHeight / 2 + 100,
+  ];
+  plane.create(_this, foePlanePos1, 270, 'foePlane-1').setDepth(1);
+  // 创建敌机2
+  const foePlanePos2: [number, number] = [
+    window.innerWidth - 200,
+    window.innerHeight / 2 - 100,
+  ];
+  plane.create(_this, foePlanePos2, 270, 'foePlane-2').setDepth(1);
+}
