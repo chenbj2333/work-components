@@ -1,17 +1,5 @@
 // 飞机
 export const plane = {
-  preload: function (
-    _this: Phaser.Scene,
-    width: number,
-    height: number,
-    name: string
-  ) {
-    const imageName = name.split('-')[0];
-    return _this.load.spritesheet(name, `/images/${imageName}.png`, {
-      frameWidth: width,
-      frameHeight: height,
-    });
-  },
   create: function (
     _this: Phaser.Scene,
     position: [number, number],

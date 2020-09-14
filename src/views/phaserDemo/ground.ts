@@ -1,8 +1,5 @@
 // 背景
 export const ground = {
-  preload: function (_this: Phaser.Scene) {
-    _this.load.image('bg', '/images/bg.png');
-  },
   create: function (_this: Phaser.Scene) {
     // this.add.image(0, 0, 'bg1').setOrigin(0, 0).setScale(5, 5);
     return _this.add

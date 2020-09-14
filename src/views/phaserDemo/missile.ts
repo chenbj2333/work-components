@@ -1,19 +1,5 @@
 // 导弹
 export class Missile {
-  // 加载导弹图片
-  static preload(
-    _this: Phaser.Scene,
-    width: number,
-    height: number,
-    name: string
-  ) {
-    const imageName = name.split('-')[0];
-    return _this.load.spritesheet(name, `/images/${imageName}.png`, {
-      frameWidth: width,
-      frameHeight: height,
-    });
-  }
-
   // 创建导弹
   static create(
     _this: Phaser.Scene,
