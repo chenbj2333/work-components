@@ -23,7 +23,8 @@ export class Missile {
     // graphics.fillStyle(0x00ff00, 1);
     const _missile = _this.add
       .follower(_path, 200, window.innerHeight / 2, 'missile-1')
-      .setScale(0.4);
+      .setScale(0.4)
+      .setDepth(-1);
     _this.physics.add.existing(_missile);
     _missile.startFollow({
       duration,
