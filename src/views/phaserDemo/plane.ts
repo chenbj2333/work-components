@@ -49,24 +49,27 @@ export const plane = {
 
 // 创建我军飞机
 export function createMyPlane(_this: Phaser.Scene) {
-  const warningPlanePos: [number, number] = [200, window.innerHeight / 2];
-  plane.create(_this, warningPlanePos, 90, 'demo', 'fly').setDepth(1);
+  // 预警机
+  const warningPlaneX = 200;
+  const warningPlaneY = window.innerHeight / 2;
+  plane
+    .create(_this, [warningPlaneX, warningPlaneY], 90, 'demo', 'fly')
+    .setDepth(1);
 }
 
 // 创建敌军飞机
 export function createEnemyPlane(_this: Phaser.Scene) {
   // 创建敌机1
-  const foePlanePos1: [number, number] = [
-    window.innerWidth - 200,
-    window.innerHeight / 2 + 100,
-  ];
-  const foe1 = plane.create(_this, foePlanePos1, 270, 'foePlane-1').setDepth(1);
+  const foePlane1X = window.innerWidth - 200;
+  const foePlane1Y = window.innerHeight / 2 - 100;
+  const foe1 = plane
+    .create(_this, [foePlane1X, foePlane1Y], 270, 'foePlane-1')
+    .setDepth(1);
   // 创建敌机2
-  const foePlanePos2: [number, number] = [
-    window.innerWidth - 200,
-    window.innerHeight / 2 - 100,
-  ];
-  const foe2 = plane.create(_this, foePlanePos2, 270, 'foePlane-2').setDepth(1);
-
+  const foePlane2X = window.innerWidth - 200;
+  const foePlane2Y = window.innerHeight / 2 + 100;
+  const foe2 = plane
+    .create(_this, [foePlane2X, foePlane2Y], 270, 'foePlane-2')
+    .setDepth(1);
   return [foe1, foe2];
 }

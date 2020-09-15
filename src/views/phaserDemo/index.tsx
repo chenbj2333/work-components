@@ -49,13 +49,18 @@ const Demo1: React.FC = () => {
     const target = foe[0];
     if (target) {
       // 引入导弹
-      missile = Missile.create(
+      missile = Missile.createMissile(
         _this,
         [200, window.innerHeight / 2],
-        90,
-        'missile-1'
+        [
+          [window.innerWidth / 2, window.innerHeight / 2],
+          [window.innerWidth - 200, window.innerHeight / 2 - 100],
+        ],
+        3000,
+        90
       );
-      _this.physics.accelerateToObject(missile, target, 200, 500, 500);
+
+      // _this.physics.accelerateToObject(missile, target, 200, 500, 500);
       // this.physics.moveToObject(missile, foe, 400);
       _this.physics.add.overlap(
         missile,
