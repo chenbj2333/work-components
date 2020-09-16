@@ -24,4 +24,7 @@ export function loadObj(_this: Phaser.Scene) {
   lo.loadSprite(_this, 74, 32, 'commu');
   lo.loadSprite(_this, 74, 32, 'interf');
   lo.loadSprite(_this, 74, 32, 'probe');
+  // 箭头
+  lo.loadSprite(_this, 66, 65, 'arrow');
+  lo.loadSprite(_this, 4, 4, 'circle');
 }

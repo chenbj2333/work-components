@@ -84,6 +84,7 @@ const Demo1: React.FC = () => {
     const probeBtn = new ControlEvent(_this, 'probe', WIN_WIDTH - 240);
     probeBtn.onEvent('pointerdown', () => {
       probeBtn.setObjFrame(0);
+      probe(_this);
     });
     probeBtn.onEvent('pointerup', () => probeBtn.setObjFrame(1));
     // 干扰网
@@ -127,6 +128,65 @@ const Demo1: React.FC = () => {
 
   function communication(_this: Phaser.Scene) {
     controlData(_this, planes, commuGraphics);
+  }
+
+  function probe(_this: Phaser.Scene) {
+    var graphics = _this.add
+      .graphics({ lineStyle: { color: 0x87cefa, width: 2, alpha: 0.5 } })
+      .setDepth(-1);
+    var line = new Phaser.Geom.Line(
+      600,
+      WIN_HEIGHT / 2 - 156,
+      600,
+      WIN_HEIGHT / 2 - 144
+    );
+    graphics.strokeLineShape(line);
+
+    _this.tweens.add({
+      targets: line,
+      radius: 100,
+      repeat: -1,
+      onUpdate: function () {
+        if (line.x1 >= 1200) {
+          graphics.clear();
+          line.setTo(600, WIN_HEIGHT / 2 - 154, 600, WIN_HEIGHT / 2 - 146);
+        } else {
+          line.setTo(line.x1 + 5, line.y1 - 0.5, line.x2 + 5, line.y2 + 0.5);
+          graphics.strokeLineShape(line);
+        }
+      },
+    });
+    // var group = _this.add.group();
+    // group.createMultiple({ key: 'circle', repeat: 120 });
+
+    // var circle = new Phaser.Geom.Circle(600, WIN_HEIGHT / 2 - 150, 32);
+    // // var triangle = new Phaser.Geom.Triangle(
+    // //   600,
+    // //   WIN_HEIGHT / 2 - 150,
+    // //   1200,
+    // //   WIN_HEIGHT / 2 - 300,
+    // //   1200,
+    // //   WIN_HEIGHT / 2
+    // // );
+
+    // Phaser.Actions.PlaceOnCircle(group.getChildren(), circle);
+
+    // _this.tweens.add({
+    //   targets: circle,
+    //   radius: 300,
+    //   ease: 'Quintic.easeInOut',
+    //   duration: 1500,
+    //   yoyo: true,
+    //   repeat: -1,
+    //   onUpdate: function () {
+    //     Phaser.Actions.RotateAroundDistance(
+    //       group.getChildren(),
+    //       { x: 600, y: WIN_HEIGHT / 2 - 150 },
+    //       0,
+    //       circle.radius
+    //     );
+    //   },
+    // });
   }
 
   function overlap(

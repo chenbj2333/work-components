@@ -1,9 +1,23 @@
 function drawLine(_this: Phaser.Scene, start: number[], end: number[]) {
   const graphics = _this.add.graphics();
-  const path = new Phaser.Curves.Line([...start, ...end]);
+  const path = new Phaser.Curves.Path(start[0], start[1]).lineTo(
+    end[0],
+    end[1]
+  );
   graphics.lineStyle(1, 0x00ff00, 1);
   path.draw(graphics).setDepth(-1);
-  return graphics;
+  const arrow = _this.add
+    .follower(path, start[0], start[1], 'arrow')
+    .setScale(0.3)
+    .setDepth(-1);
+
+  arrow.startFollow({
+    duration: 2000,
+    rotateToPath: true,
+    yoyo: true,
+    repeat: -1,
+  });
+  return { graphics, arrow };
 }
 
 export function controlData(
@@ -32,9 +46,15 @@ export function controlData(
   }
   // 如果有连线清除，如果没有则连线
   if (commuGraphics.length > 0) {
-    commuGraphics.forEach((item: Phaser.GameObjects.Graphics) => {
-      item.destroy();
-    });
+    commuGraphics.forEach(
+      (item: {
+        graphics: Phaser.GameObjects.Graphics;
+        arrow: Phaser.GameObjects.PathFollower;
+      }) => {
+        item.graphics.destroy();
+        item.arrow.destroy();
+      }
+    );
     commuGraphics.length = 0;
   } else {
     planeLine.forEach((item: any) => {
