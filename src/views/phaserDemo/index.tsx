@@ -5,13 +5,19 @@ import { plane, createMyPlane, createEnemyPlane } from './plane';
 import { Missile } from './missile';
 import { loadObj } from './loadObject';
 import { ControlEvent } from './control';
+import { controlData } from './drawLine';
+
+const WIN_WIDTH = window.innerWidth;
+const WIN_HEIGHT = window.innerHeight;
 
 const Demo1: React.FC = () => {
-  let bg: any = null;
-  let foes: any = null;
-  let missile1: any = null;
-  let commuLine1: any = null;
-  let isOverlap: boolean = false;
+  let bg: any = null; // 背景
+  let planes: any = null; // 我方飞机
+  let foes: any = null; // 敌机
+  let missile1: any = null; // 导弹
+  let commuLine1: any = null; // 导弹连线
+  let isOverlap: boolean = false; // 是否碰撞
+  let commuGraphics: any[] = []; // 通信连线
 
   // 加载
   function preload(this: any) {
@@ -25,39 +31,11 @@ const Demo1: React.FC = () => {
     // 创建背景
     bg = ground.create(this);
     // 创建预警机
-    createMyPlane(this);
+    planes = createMyPlane(this);
     // 创建敌机
     foes = createEnemyPlane(this);
     // 操作
-    const attackBtn = new ControlEvent(this, 'fire', window.innerWidth - 400);
-    attackBtn.onEvent('pointerdown', () => {
-      attackBtn.setObjFrame(0);
-      fireMissile(this);
-    });
-    attackBtn.onEvent('pointerup', () => {
-      attackBtn.setObjFrame(1);
-    });
-    const communBtn = new ControlEvent(this, 'commu', window.innerWidth - 320);
-    communBtn.onEvent('pointerdown', () => {
-      communBtn.setObjFrame(0);
-    });
-    communBtn.onEvent('pointerup', () => {
-      communBtn.setObjFrame(1);
-    });
-    const probeBtn = new ControlEvent(this, 'probe', window.innerWidth - 240);
-    probeBtn.onEvent('pointerdown', () => {
-      probeBtn.setObjFrame(0);
-    });
-    probeBtn.onEvent('pointerup', () => {
-      probeBtn.setObjFrame(1);
-    });
-    const interfBtn = new ControlEvent(this, 'interf', window.innerWidth - 160);
-    interfBtn.onEvent('pointerdown', () => {
-      interfBtn.setObjFrame(0);
-    });
-    interfBtn.onEvent('pointerup', () => {
-      interfBtn.setObjFrame(1);
-    });
+    controls(this);
   }
 
   // 更新
@@ -67,17 +45,17 @@ const Demo1: React.FC = () => {
       commuLine1?.destroy();
       commuLine1 = this.add.graphics();
       let path = null;
-      if (missile1.x < window.innerWidth / 2) {
+      if (missile1.x < WIN_WIDTH / 2 + 50) {
         path = new Phaser.Curves.Line([
-          450,
-          window.innerHeight / 2 - 150,
+          500,
+          WIN_HEIGHT / 2 - 250,
           missile1.x,
           missile1.y,
         ]);
       } else {
         path = new Phaser.Curves.Line([
-          500,
-          window.innerHeight / 2 - 250,
+          600,
+          WIN_HEIGHT / 2 - 150,
           missile1.x,
           missile1.y,
         ]);
@@ -87,21 +65,50 @@ const Demo1: React.FC = () => {
     }
   }
 
+  function controls(_this: Phaser.Scene) {
+    // 火力网
+    const attackBtn = new ControlEvent(_this, 'fire', WIN_WIDTH - 400);
+    attackBtn.onEvent('pointerdown', () => {
+      attackBtn.setObjFrame(0);
+      fireMissile(_this);
+    });
+    attackBtn.onEvent('pointerup', () => attackBtn.setObjFrame(1));
+    // 通信网
+    const communBtn = new ControlEvent(_this, 'commu', WIN_WIDTH - 320);
+    communBtn.onEvent('pointerdown', () => {
+      communBtn.setObjFrame(0);
+      communication(_this);
+    });
+    communBtn.onEvent('pointerup', () => communBtn.setObjFrame(1));
+    // 探测网
+    const probeBtn = new ControlEvent(_this, 'probe', WIN_WIDTH - 240);
+    probeBtn.onEvent('pointerdown', () => {
+      probeBtn.setObjFrame(0);
+    });
+    probeBtn.onEvent('pointerup', () => probeBtn.setObjFrame(1));
+    // 干扰网
+    const interfBtn = new ControlEvent(_this, 'interf', WIN_WIDTH - 160);
+    interfBtn.onEvent('pointerdown', () => {
+      interfBtn.setObjFrame(0);
+    });
+    interfBtn.onEvent('pointerup', () => interfBtn.setObjFrame(1));
+  }
+
   function fireMissile(_this: Phaser.Scene) {
     const { foe1, foe2 } = foes;
     if (foe1 && foe2) {
       isOverlap = false;
       const pathObj1 = Missile.createMissilePath(
-        [300, window.innerHeight / 2 - 250],
+        [300, WIN_HEIGHT / 2 - 250],
         [
-          [window.innerWidth / 2, window.innerHeight / 2 - 150],
+          [WIN_WIDTH / 2, WIN_HEIGHT / 2 - 150],
           [foe1.x, foe1.y],
         ]
       );
       const pathObj2 = Missile.createMissilePath(
-        [300, window.innerHeight / 2 + 250],
+        [300, WIN_HEIGHT / 2 + 250],
         [
-          [window.innerWidth / 2, window.innerHeight / 2 + 150],
+          [WIN_WIDTH / 2, WIN_HEIGHT / 2 + 150],
           [foe2.x, foe2.y],
         ]
       );
@@ -116,6 +123,10 @@ const Demo1: React.FC = () => {
       overlap(_this, missile1, 'foe1');
       overlap(_this, missile2, 'foe2');
     }
+  }
+
+  function communication(_this: Phaser.Scene) {
+    controlData(_this, planes, commuGraphics);
   }
 
   function overlap(
@@ -155,8 +166,8 @@ const Demo1: React.FC = () => {
   useEffect(() => {
     const config = {
       type: Phaser.AUTO,
-      width: window.innerWidth,
-      height: window.innerHeight,
+      width: WIN_WIDTH,
+      height: WIN_HEIGHT,
       physics: {
         default: 'arcade',
         // arcade: {
