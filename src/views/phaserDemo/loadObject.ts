@@ -15,7 +15,7 @@ export function loadObj(_this: Phaser.Scene) {
   lo.loadGround(_this);
   lo.loadSprite(_this, 195, 195, 'demo');
   lo.loadSprite(_this, 146, 209, 'J20');
-  lo.loadSprite(_this, 146, 209, 'drone');
+  lo.loadSprite(_this, 134, 68, 'drone');
   lo.loadSprite(_this, 195, 195, 'foePlane');
   lo.loadSprite(_this, 123, 160, 'explose');
   lo.loadSprite(_this, 29, 72, 'missile');

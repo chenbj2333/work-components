@@ -6,18 +6,34 @@ import { Missile } from './missile';
 import { loadObj } from './loadObject';
 import { ControlEvent } from './control';
 import { controlData } from './drawLine';
+import { message } from 'antd';
 
 const WIN_WIDTH = window.innerWidth;
 const WIN_HEIGHT = window.innerHeight;
 
+interface IFoe {
+  key: string;
+  originPos: number[];
+  breakPos: number[];
+  obj: Phaser.Physics.Arcade.Sprite;
+  drone: number[][];
+}
+
+interface IMissile {
+  key: string;
+  obj: Phaser.Physics.Arcade.Sprite | Phaser.GameObjects.PathFollower;
+  commuLine?: Phaser.GameObjects.Graphics;
+  isOverlap: boolean;
+  drone: number[][];
+}
+
 const Demo1: React.FC = () => {
   let bg: any = null; // 背景
   let planes: any = null; // 我方飞机
-  let foes: any = null; // 敌机
-  let missile1: any = null; // 导弹
-  let commuLine1: any = null; // 导弹连线
-  let isOverlap: boolean = false; // 是否碰撞
+  let foes: IFoe[] = []; // 敌机
+  const missiles: IMissile[] = [];
   let commuGraphics: any[] = []; // 通信连线
+  let data: any = null;
 
   // 加载
   function preload(this: any) {
@@ -28,6 +44,21 @@ const Demo1: React.FC = () => {
 
   // 创建
   function create(this: Phaser.Scene) {
+    const test = new WebSocket(`ws://localhost:1234/server/plane/demo`);
+    test.onmessage = (evt: MessageEvent) => {
+      const origin = JSON.parse(evt.data);
+      if (origin.err) {
+        message.error(origin.err);
+      } else {
+        data = origin;
+        // console.log(origin);
+        // if (!isEqual(origin, preData.current)) {
+        //   preData.current = origin;
+        //   setData(origin);
+        //   setScene(origin.mode);
+        // }
+      }
+    };
     // 创建背景
     bg = ground.create(this);
     // 创建预警机
@@ -40,28 +71,37 @@ const Demo1: React.FC = () => {
 
   // 更新
   function update(this: any) {
+    if (data) {
+      planes[data.name].drone.forEach((item: Phaser.Physics.Arcade.Sprite) => {
+        const frame = data.status === 'normal' ? 0 : 1;
+        item.setFrame(frame);
+      });
+    }
     bg.tilePositionX += 2;
-    if (missile1 && !isOverlap) {
-      commuLine1?.destroy();
-      commuLine1 = this.add.graphics();
-      let path = null;
-      if (missile1.x < WIN_WIDTH / 2 + 50) {
-        path = new Phaser.Curves.Line([
-          500,
-          WIN_HEIGHT / 2 - 250,
-          missile1.x,
-          missile1.y,
-        ]);
-      } else {
-        path = new Phaser.Curves.Line([
-          600,
-          WIN_HEIGHT / 2 - 150,
-          missile1.x,
-          missile1.y,
-        ]);
-      }
-      commuLine1.lineStyle(1, 0x00ff00, 1);
-      path.draw(commuLine1).setDepth(-1);
+    if (missiles.length > 0) {
+      // 无人机通信跟随
+      missiles.forEach((miss) => {
+        if (!miss.isOverlap) {
+          miss.commuLine?.destroy();
+          miss.commuLine = this.add.graphics();
+          let path = null;
+          if (miss.obj.x < WIN_WIDTH / 2 + 50) {
+            path = new Phaser.Curves.Line([
+              ...miss.drone[0],
+              miss.obj.x,
+              miss.obj.y,
+            ]);
+          } else {
+            path = new Phaser.Curves.Line([
+              ...(miss.drone[1] || miss.drone[0]),
+              miss.obj.x,
+              miss.obj.y,
+            ]);
+          }
+          miss.commuLine!.lineStyle(1, 0x00ff00, 1);
+          path.draw(miss.commuLine!).setDepth(-1);
+        }
+      });
     }
   }
 
@@ -96,33 +136,30 @@ const Demo1: React.FC = () => {
   }
 
   function fireMissile(_this: Phaser.Scene) {
-    const { foe1, foe2 } = foes;
-    if (foe1 && foe2) {
-      isOverlap = false;
-      const pathObj1 = Missile.createMissilePath(
-        [300, WIN_HEIGHT / 2 - 250],
-        [
-          [WIN_WIDTH / 2, WIN_HEIGHT / 2 - 150],
-          [foe1.x, foe1.y],
-        ]
-      );
-      const pathObj2 = Missile.createMissilePath(
-        [300, WIN_HEIGHT / 2 + 250],
-        [
-          [WIN_WIDTH / 2, WIN_HEIGHT / 2 + 150],
-          [foe2.x, foe2.y],
-        ]
-      );
+    if (foes.length > 0) {
       // 火力网
-      // const graphics = _this.add.graphics();
-      // graphics.lineStyle(1, 0xff0000, 1);
-      // pathObj1.path.draw(graphics, 128).setDepth(-1);
-      // pathObj2.path.draw(graphics, 128).setDepth(-1);
-      // 引入导弹
-      missile1 = Missile.createMissile(_this, pathObj1, 3000, 90);
-      const missile2 = Missile.createMissile(_this, pathObj2, 3000, 90);
-      overlap(_this, missile1, 'foe1');
-      overlap(_this, missile2, 'foe2');
+      const graphics = _this.add.graphics();
+      graphics.lineStyle(1, 0xff0000, 1);
+
+      foes.forEach((foe, index) => {
+        const missPath = Missile.createMissilePath(
+          [foe.originPos[0], foe.originPos[1]],
+          [
+            [foe.breakPos[0], foe.breakPos[1]],
+            [foe.obj.x, foe.obj.y],
+          ]
+        );
+        // 画火力网
+        missPath.path.draw(graphics, 128).setDepth(-1);
+        const missObj = Missile.createMissile(_this, missPath, 3000, 90);
+        missiles.push({
+          key: `missile-${index + 1}`,
+          obj: missObj,
+          isOverlap: false,
+          drone: foe.drone,
+        });
+        overlap(_this, missObj, foe.obj, graphics);
+      });
     }
   }
 
@@ -131,80 +168,52 @@ const Demo1: React.FC = () => {
   }
 
   function probe(_this: Phaser.Scene) {
-    var graphics = _this.add
-      .graphics({ lineStyle: { color: 0x87cefa, width: 2, alpha: 0.5 } })
-      .setDepth(-1);
-    var line = new Phaser.Geom.Line(
-      600,
-      WIN_HEIGHT / 2 - 156,
-      600,
-      WIN_HEIGHT / 2 - 144
-    );
-    graphics.strokeLineShape(line);
+    const startPos = [600, WIN_HEIGHT / 2 - 150];
+    const point1 = [0, 0];
+    const point2 = [WIN_WIDTH - 720, -80];
+    const point3 = [WIN_WIDTH - 720, 80];
+
+    var probeNet = _this.add
+      .triangle(...startPos, ...point1, ...point2, ...point3, 0x6666ff)
+      .setOrigin(0, 0)
+      .setAlpha(0.6)
+      .setScale(0);
 
     _this.tweens.add({
-      targets: line,
-      radius: 100,
-      repeat: -1,
-      onUpdate: function () {
-        if (line.x1 >= 1200) {
-          graphics.clear();
-          line.setTo(600, WIN_HEIGHT / 2 - 154, 600, WIN_HEIGHT / 2 - 146);
-        } else {
-          line.setTo(line.x1 + 5, line.y1 - 0.5, line.x2 + 5, line.y2 + 0.5);
-          graphics.strokeLineShape(line);
-        }
+      targets: probeNet,
+      scale: 1,
+      repeat: 0,
+      ease: 'Sine.easeInOut',
+      onComplete: function () {
+        console.log('complete');
       },
     });
-    // var group = _this.add.group();
-    // group.createMultiple({ key: 'circle', repeat: 120 });
 
-    // var circle = new Phaser.Geom.Circle(600, WIN_HEIGHT / 2 - 150, 32);
-    // // var triangle = new Phaser.Geom.Triangle(
-    // //   600,
-    // //   WIN_HEIGHT / 2 - 150,
-    // //   1200,
-    // //   WIN_HEIGHT / 2 - 300,
-    // //   1200,
-    // //   WIN_HEIGHT / 2
-    // // );
-
-    // Phaser.Actions.PlaceOnCircle(group.getChildren(), circle);
-
-    // _this.tweens.add({
-    //   targets: circle,
-    //   radius: 300,
-    //   ease: 'Quintic.easeInOut',
-    //   duration: 1500,
-    //   yoyo: true,
-    //   repeat: -1,
-    //   onUpdate: function () {
-    //     Phaser.Actions.RotateAroundDistance(
-    //       group.getChildren(),
-    //       { x: 600, y: WIN_HEIGHT / 2 - 150 },
-    //       0,
-    //       circle.radius
-    //     );
-    //   },
-    // });
+    _this.tweens.add({
+      targets: probeNet,
+      alpha: 0.2,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
   }
 
   function overlap(
     _this: Phaser.Scene,
     missile: any,
-    target: string,
+    target: any,
     graphics?: any
   ) {
     _this.physics.add.overlap(
       missile,
-      foes[target],
+      target,
       function () {
         missile.destroy();
-        foes[target].life = foes[target].life - 1;
-        if (foes[target].life <= 0) {
-          foes[target].destroy();
+        target.life = target.life - 1;
+        if (target.life <= 0) {
+          target.destroy();
           // 在敌机消失的位置上新增加一个精灵，用来展示帧动画
-          const pos: [number, number] = [foes[target].x, foes[target].y];
+          const pos: [number, number] = [target.x, target.y];
           const enemyFrame = plane
             .createExplose(_this, pos, 270, 'explose', 'enemyBoom')
             .setDepth(1);
@@ -212,9 +221,13 @@ const Demo1: React.FC = () => {
           enemyFrame.once('animationcomplete', function () {
             enemyFrame.destroy();
             graphics?.destroy();
-            commuLine1?.destroy();
-            isOverlap = true;
-            foes[target] = null;
+            missile.destroy();
+            missiles.forEach((miss) => {
+              miss.commuLine?.destroy();
+              miss.isOverlap = true;
+            });
+            missiles.length = 0;
+            foes.length = 0;
           });
         }
       },
@@ -230,9 +243,6 @@ const Demo1: React.FC = () => {
       height: WIN_HEIGHT,
       physics: {
         default: 'arcade',
-        // arcade: {
-        //   gravity: { y: 200 },
-        // },
       },
       scene: {
         preload: preload,
@@ -241,6 +251,7 @@ const Demo1: React.FC = () => {
       },
     };
     new Phaser.Game(config);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

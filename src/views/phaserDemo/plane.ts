@@ -84,8 +84,23 @@ export function createMyPlane(_this: Phaser.Scene) {
 export function createEnemyPlane(_this: Phaser.Scene) {
   const width = window.innerWidth;
   const height = window.innerHeight / 2;
-  return {
-    foe1: plane.create(_this, [width - 200, height - 100], 270, 'foePlane'),
-    foe2: plane.create(_this, [width - 200, height + 100], 270, 'foePlane'),
-  };
+  return [
+    {
+      key: 'foe1',
+      originPos: [300, height - 250],
+      breakPos: [width / 2, height - 150],
+      obj: plane.create(_this, [width - 200, height - 100], 270, 'foePlane'),
+      drone: [
+        [500, height - 250],
+        [600, height - 150],
+      ],
+    },
+    {
+      key: 'foe2',
+      originPos: [300, height + 250],
+      breakPos: [width / 2, height + 150],
+      obj: plane.create(_this, [width - 200, height + 100], 270, 'foePlane'),
+      drone: [[600, height + 350]],
+    },
+  ];
 }

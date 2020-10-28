@@ -1,11 +1,11 @@
 import React from 'react';
 import './App.less';
-import Demo1 from './views/phaserDemo';
+import FormilyDemo from './views/formily';
 
 function App() {
   return (
     <div>
-      <Demo1 />
+      <FormilyDemo />
     </div>
   );
 }
