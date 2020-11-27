@@ -22,7 +22,7 @@ const Demo4: React.FC = () => {
     }
     viewer.entities.collectionChanged.addEventListener(onChanged);
     const ws = new WebSocket('ws://10.0.1.140:1234/cesiumStudy/data');
-    var heading = Cesium.Math.toRadians(-90.0);
+    var heading = Cesium.Math.toRadians(0.0);
     var pitch = Cesium.Math.toRadians(0.0);
     var roll = Cesium.Math.toRadians(0.0);
     ws.onmessage = (e: MessageEvent) => {
@@ -42,6 +42,8 @@ const Demo4: React.FC = () => {
             item.altitude
           ) as unknown) as Cesium.PositionProperty;
           entity.label!.text = item.platformName;
+          entity.model!.uri = (`/${item.model}.gltf` as unknown) as Cesium.Property;
+          entity.model!.scale = ((item.model === 'j20' ? 5000 : 1000) as unknown) as Cesium.Property;
           // entity.merge({
           //   name: item.platformName,
           //   label: {
@@ -49,6 +51,7 @@ const Demo4: React.FC = () => {
           //   },
           // } as Cesium.Entity);
         } else {
+          console.log(item.model);
           viewer.entities.add({
             id: item.platFormId,
             name: item.platformName,
@@ -56,8 +59,8 @@ const Demo4: React.FC = () => {
             position: Cesium.Cartesian3.fromDegrees(item.longitude, item.latitude, item.altitude),
             // point: { pixelSize: 10, color: Cesium.Color.RED.withAlpha(0.5) },
             model: {
-              uri: '/shipold.gltf',
-              scale: 30000,
+              uri: `/${item.model}.gltf`,
+              scale: item.model === 'j20' ? 5000 : 1000,
             },
             orientation: (Cesium.Transforms.headingPitchRollQuaternion(
               Cesium.Cartesian3.fromDegrees(item.longitude, item.latitude, item.altitude),
