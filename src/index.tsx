@@ -9,6 +9,8 @@ import App from './App';
 
 import * as Cesium from 'cesium';
 
+// Cesium.Ion.defaultAccessToken =
+//   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmYzlkMGRkOS00ZGEzLTQ4YjAtODUwYi00MzM0MzI3MjY0MWUiLCJpZCI6Mzg0NjUsImlhdCI6MTYwNjM3NDk5MX0.x2EOI-CdYZXAh25WMotyFiNuQvcBWIW3NJ5CxeHVC2U';
 Cesium.Ion.defaultAccessToken =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmYzlkMGRkOS00ZGEzLTQ4YjAtODUwYi00MzM0MzI3MjY0MWUiLCJpZCI6Mzg0NjUsImlhdCI6MTYwNjM3NDk5MX0.x2EOI-CdYZXAh25WMotyFiNuQvcBWIW3NJ5CxeHVC2U';
 
